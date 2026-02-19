@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Password Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <button id="lang-toggle" class="icon-btn" title="Switch Language">ES</button>
+    <button id="admin-toggle" class="icon-btn" title="Admin Panel">⚙️</button>
+
+    <div class="container">
+        <h1>* The Password Game *</h1>
+        <p class="subtitle" id="subtitle">Please choose a password</p>
+
+        <div class="input-wrapper">
+            <input type="text" id="password-input" spellcheck="false" autocomplete="off">
+            <span id="char-count">0</span>
+        </div>
+
+        <div id="rules-container">
+            <!-- Rules will be injected here dynamically -->
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="hidden">
+        <h3>Admin Panel</h3>
+        <p>Add a custom rule:</p>
+        <div class="admin-input-group">
+            <label>Rule Number (optional):</label>
+            <input type="number" id="new-rule-id" placeholder="Leave empty for last" min="1">
+        </div>
+        <div class="admin-input-group">
+            <label>Description (EN):</label>
+            <input type="text" id="new-rule-desc-en" placeholder="Must contain 'cat'">
+        </div>
+        <div class="admin-input-group">
+            <label>Description (ES):</label>
+            <input type="text" id="new-rule-desc-es" placeholder="Debe contener 'cat'">
+        </div>
+        <div class="admin-input-group">
+            <label>Regex pattern:</label>
+            <input type="text" id="new-rule-regex" placeholder="cat">
+        </div>
+        <div class="admin-buttons">
+            <button id="add-rule-btn">Add Rule</button>
+            <button id="close-admin">Close</button>
+        </div>
+    </div>
+
+    <script src="rules.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

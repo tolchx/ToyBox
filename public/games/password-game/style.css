@@ -1,0 +1,222 @@
+:root {
+    --bg-color: #111;
+    --text-color: #fff;
+    --rule-bg-invalid: #ffcccc;
+    --rule-border-invalid: #ff0000;
+    --rule-text-invalid: #cc0000;
+    --rule-bg-valid: #ccffcc;
+    --rule-border-valid: #00cc00;
+    --rule-text-valid: #006600;
+    --panel-bg: #222;
+    --panel-border: #444;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Floating Buttons */
+.icon-btn {
+    position: fixed;
+    top: 1rem;
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 100;
+    font-family: monospace;
+}
+
+.icon-btn:hover {
+    background: #444;
+}
+
+#lang-toggle {
+    right: 1rem;
+}
+
+#admin-toggle {
+    right: 5rem;
+    /* Space for Lang Toggle */
+}
+
+
+h1 {
+    font-weight: 800;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.input-wrapper {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+#password-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.5rem;
+    border: 2px solid #333;
+    border-radius: 8px;
+    background-color: #222;
+    color: #fff;
+    outline: none;
+    transition: box-shadow 0.2s;
+    box-sizing: border-box;
+    font-family: monospace;
+}
+
+#password-input:focus {
+    border-color: #666;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+#char-count {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-weight: bold;
+}
+
+#rules-container {
+    display: flex;
+    flex-direction: column-reverse;
+    /* New rules appear at the top from user perspective */
+    gap: 1rem;
+}
+
+.rule-box {
+    padding: 1rem;
+    border-radius: 8px;
+    border-width: 2px;
+    border-style: solid;
+    text-align: left;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: slideIn 0.4s forwards;
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rule-box.invalid {
+    background-color: var(--rule-bg-invalid);
+    border-color: var(--rule-border-invalid);
+    color: var(--rule-text-invalid);
+}
+
+.rule-box.valid {
+    background-color: var(--rule-bg-valid);
+    border-color: var(--rule-border-valid);
+    color: var(--rule-text-valid);
+}
+
+.rule-header {
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.rule-desc {
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+/* Admin Panel */
+#admin-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    width: 300px;
+    text-align: left;
+}
+
+#admin-panel.hidden {
+    display: none;
+}
+
+#admin-panel h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #444;
+    padding-bottom: 0.5rem;
+}
+
+.admin-input-group {
+    margin-bottom: 1rem;
+}
+
+.admin-input-group label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    color: #aaa;
+}
+
+.admin-input-group input {
+    width: 100%;
+    padding: 0.5rem;
+    background: #333;
+    border: 1px solid #555;
+    color: #fff;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#admin-panel button {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+#add-rule-btn {
+    background: #00cc00;
+    color: #003300;
+}
+
+#close-admin {
+    background: #444;
+    color: #fff;
+}

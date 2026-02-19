@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Craft</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Sidebar with discovered elements -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Infinite Craft</h2>
+                    <span id="element-count" class="count">4 elements</span>
+                </div>
+                <input type="text" id="search-box" class="search-box" placeholder="Search elements...">
+            </div>
+            <div id="sidebar-elements" class="sidebar-elements"></div>
+        </div>
+
+        <!-- Canvas area -->
+        <div id="canvas" class="canvas">
+            <div id="trash-zone" class="trash-zone">🗑️ Drop here to delete</div>
+            <button id="clear-btn" class="clear-btn">🧹 Clear Canvas</button>
+            <button id="reset-btn" class="reset-btn">🔄 Reset All</button>
+        </div>
+    </div>
+
+    <!-- Discovery toast -->
+    <div id="discovery-toast" class="discovery-toast"></div>
+
+    <script src="recipes.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+﻿Informe de Investigación y Desarrollo de Arquitectura para Plataforma de Entretenimiento Web Interactivo (Proyecto Antigravity)
+1. Resumen Ejecutivo y Visión del Proyecto
+El presente documento constituye un informe técnico exhaustivo diseñado para servir como especificación fundacional en el desarrollo de una plataforma web de "juguetes interactivos" y videojuegos experimentales, inspirada en el éxito y la mecánica de Neal.fun. El objetivo central de esta investigación es deconstruir los principios de diseño, la ingeniería de software y la psicología del usuario que impulsan este tipo de experiencias virales, para luego proponer una arquitectura expandida —denominada en este contexto como Motor Antigravity— que no solo replique las funcionalidades existentes, sino que introduzca capacidades novedosas de tematización dinámica y categorización modular.
+La web moderna ha experimentado un renacimiento de lo que podría denominarse "la web lúdica": sitios que existen puramente para el entretenimiento, la curiosidad y la exploración creativa, alejándose de la utilidad transaccional. Neal.fun, creado por el desarrollador creativo Neal Agarwal, representa el pináculo de esta tendencia, utilizando tecnologías web estándar (JavaScript, React, Canvas) para crear experiencias que oscilan entre la visualización de datos existenciales y juegos de lógica absurda.1 Este informe analiza cómo estas experiencias logran retener la atención del usuario mediante mecánicas de "descubrimiento incremental" y "humor interactivo", y proporciona una hoja de ruta técnica para que una Inteligencia Artificial avanzada (el agente de implementación) pueda construir un sistema análogo.
+A diferencia de una simple colección de juegos estáticos, la propuesta aquí detallada exige una infraestructura flexible donde la lógica del juego (el backend de reglas) esté desacoplada de su representación visual (el frontend o "skin"). Esto permitirá que un mismo motor de juego —por ejemplo, un simulador de física— pueda presentarse bajo una temática de "Laboratorio de Ciencias" o "Ruinas Antiguas" simplemente cambiando un archivo de configuración de tema, cumpliendo así con el requerimiento crítico de variabilidad temática solicitado.
+________________
+2. Análisis de Referencia: Deconstrucción de Neal.fun
+Para construir una plataforma superior, es imperativo entender los cimientos de la referencia. A través de la investigación de los activos digitales disponibles y el análisis de comportamiento de los juegos de Neal.fun, se han identificado patrones recurrentes en la arquitectura de software y el diseño de juegos.
+2.1. Filosofía de Diseño y Experiencia de Usuario (UX)
+El éxito de Neal.fun no radica en gráficos de alta fidelidad (AAA), sino en la inmediatez y la "pegajosidad" conceptual.
+* Minimalismo Funcional: La interfaz de usuario (UI) suele ser espartana, priorizando la interacción directa sobre menús complejos. No hay pantallas de carga prolongadas ni sistemas de registro obligatorios, lo que reduce la fricción de entrada a casi cero.1
+* Narrativa Emergente: Juegos como Infinite Craft o The Password Game no tienen una historia predefinida; la historia surge de las decisiones del usuario (crear un objeto absurdo o luchar contra una regla de contraseña imposible).
+* Escala y Perspectiva: Muchos "juguetes" se centran en recontextualizar la realidad del usuario, ya sea mostrando la inmensidad del océano (The Deep Sea) o la magnitud de la riqueza (Spend Bill Gates' Money). Esto genera un valor educativo y emocional que trasciende el simple entretenimiento.3
+2.2. Stack Tecnológico Inferido
+Basado en el análisis de las herramientas utilizadas y entrevistas con el creador, se ha establecido el siguiente perfil tecnológico 2:
+* Frontend: React.js es la biblioteca predominante, facilitando la gestión de estado para juegos basados en UI (como The Password Game). Para experiencias gráficas intensivas (física, 3D), se integran bibliotecas como p5.js, Matter.js o Three.js dentro de componentes React.
+* Backend y Serverless: La arquitectura se apoya fuertemente en funciones serverless (AWS Lambda, Netlify Functions). Esto permite escalar automáticamente durante picos virales sin mantener servidores de juegos dedicados las 24 horas.
+* Persistencia de Datos: Uso de bases de datos NoSQL (MongoDB) para almacenar combinaciones de crafting o estadísticas globales, debido a su flexibilidad con esquemas de datos no estructurados.2
+________________
+3. Arquitectura del Sistema "Antigravity" con Tematización Dinámica
+Este es el núcleo de la innovación solicitada. Para que la IA implementadora construya una plataforma donde "cada juego tenga diferentes temáticas y categorías", no se puede codificar cada juego como una entidad monolítica. Se requiere una Arquitectura Orientada a Componentes Tematizables.
+3.1. El Motor de Temas (Theming Engine)
+El sistema debe implementar un patrón de diseño Strategy o Context en React, donde los activos visuales y las constantes físicas se inyectan en tiempo de ejecución.
+Componente del Juego
+	Implementación Estática (Tradicional)
+	Implementación Dinámica (Modelo Antigravity)
+	Gráficos (Sprites)
+	<img src="nave_espacial.png" />
+	<ThemedAsset name="player_avatar" /> que resuelve a /themes/space/player.png o /themes/medieval/knight.png.
+	Física (Gravedad)
+	const gravity = 9.8;
+	const gravity = useThemeContext().physics.gravity; (Permite gravedad cero en tema Espacio, gravedad alta en tema Júpiter).
+	Sonido (SFX)
+	play('explosion.mp3')
+	audioManager.play('impact') que selecciona el sonido acorde a la textura del material del tema activo.
+	Paleta de Colores
+	CSS hardcodeado
+	Variables CSS (--primary-color, --bg-texture) inyectadas en el :root al cambiar de tema.
+	3.2. Estructura de Datos para Categorías y Temas
+La base de datos debe reflejar esta relación de uno a muchos. Un juego puede tener múltiples "pieles" (skins).
+Esquema Propuesto (JSON/NoSQL):
+
+
+JSON
+
+
+
+
+{
+ "game_id": "physics_stacker",
+ "base_mechanic": "matter_js_stacking",
+ "available_themes":
+}
+
+Esta estructura permite que la IA "Antigravity" genere nuevas variaciones simplemente creando nuevos archivos de configuración y activos, sin reescribir la lógica central del juego.
+________________
+4. Ingeniería Inversa y Adaptación de Juegos de Referencia
+A continuación, se presenta un análisis detallado de los juegos más exitosos de la referencia, desglosando sus mecánicas para su reimplementación y proponiendo variaciones temáticas específicas para la nueva plataforma.
+4.1. Clon de "Infinite Craft" (La Alquimia Generativa)
+Referencia: 8 Este juego permite combinar dos elementos (empezando con Agua, Fuego, Tierra, Aire) para crear uno nuevo, utilizando IA para determinar el resultado.
+* Lógica Central:
+   * Input: Elemento A + Elemento B.
+   * Proceso: Consultar base de datos de combinaciones existentes. Si no existe, llamar a API de LLM (ej. OpenAI, Llama 2) con el prompt: "Combina [A] y en un concepto corto o sustantivo. Responde con JSON {nombre, emoji}".
+   * Output: Nuevo elemento añadido al inventario del usuario.
+* Adaptación Antigravity (Temas):
+   * Tema "Cocina Caótica": Los elementos base son ingredientes (Harina, Huevo, Tomate). La IA genera platos (Harina + Huevo = Pasta).
+   * Tema "Evolución Biológica": Base: Célula, ADN, Agua. La IA genera especies nuevas y criaturas fantásticas.
+   * Tema "Startup Tech": Base: Código, Café, Dinero. La IA genera nombres de apps absurdas o crisis corporativas.
+4.2. Clon de "The Password Game" (El Validador Imposible)
+Referencia: 12 Un campo de texto con reglas de validación acumulativas y crecientemente complejas.
+* Lógica Central:
+   * Motor de Reglas: Un array de funciones validadoras que se ejecutan en cada keystroke.
+   * Integraciones API: GeoGuessr (Google Maps), Ajedrez (Stockfish API), Tabla Periódica.
+   * Estado de Frustración: Las reglas deben entrar en conflicto (ej. "La suma de dígitos debe ser 25" vs "Debes incluir el año actual").
+* Adaptación Antigravity (Temas):
+   * Tema "Burocracia Infernal": Rellenar un formulario de impuestos galáctico. Reglas: "El nombre debe tener 3 vocales alienígenas", "Adjunte un sacrificio digital".
+   * Tema "Hechizo Mágico": Escribir un encantamiento. Reglas: "Debe rimar con 'muerte'", "Debe contener runas lunares (caracteres Unicode específicos)".
+4.3. Clon de "Spend Bill Gates' Money" (Simulador de Abundancia)
+Referencia: 4 Una tienda virtual con presupuesto casi infinito para visualizar magnitudes económicas.
+* Lógica Central:
+   * Matemática simple de resta sobre un saldo inicial masivo ($100B).
+   * Grid de productos con precios estáticos.
+* Adaptación Antigravity (Temas):
+   * Tema "Deuda Nacional": En lugar de gastar, debes recortar presupuesto para pagar la deuda de un país. Items: "Cerrar Escuelas", "Vender Monumentos".
+   * Tema "Dieta de Calorías": Tienes un "presupuesto" de 10,000 calorías para un día de gula. Items: Hamburguesas, Pasteles, Aceite puro. Visualiza la densidad calórica.
+4.4. Clon de "Asteroid Launcher" (Simulador de Impacto)
+Referencia: 18 Visualización de daño de un asteroide sobre un mapa real.
+* Lógica Central:
+   * Librería de Mapas (Mapbox/Leaflet).
+   * Cálculo de Física: Energía cinética (  ) y ecuaciones de escalado de cráteres (basadas en investigaciones de Collins et al.).
+   * Capas de visualización (SVG/Canvas) sobre el mapa para ondas de choque, bola de fuego, etc.
+   * Adaptación Antigravity (Temas):
+   * Tema "Invasión Kaiju": En lugar de asteroides, lanzas monstruos gigantes. Parámetros: Altura del monstruo, tipo de aliento (fuego, ácido).
+   * Tema "Globo de Agua": Escala micro. Lanzas globos de agua a una acera llena de hormigas. Simulación de fluidos simple.
+4.5. Clon de "The Deep Sea" (Scroll de Datos)
+Referencia: 3 Visualización vertical basada en la profundidad/altura.
+   * Lógica Central:
+   * Evento de Scroll vinculado a un contador de unidades (metros/años luz).
+   * Carga diferida (Lazy Loading) de activos para mantener el rendimiento.
+   * Adaptación Antigravity (Temas):
+   * Tema "Atmósfera": Scroll hacia arriba, desde el suelo hasta el borde del universo, pasando por nubes, satélites, la Luna, Marte.
+   * Tema "Microcosmos": Zoom hacia adentro (escala logarítmica). De piel humana -> célula -> ADN -> átomo -> quark.
+________________
+5. Biblioteca de Nuevos Juegos (Creatividad y Expansión)
+Para cumplir con el requisito de "usar la creatividad para crear juegos nuevos", se detalla a continuación una lista de 20 conceptos originales, categorizados por género y mecánica, listos para ser desarrollados por la IA.
+Categoría A: Simuladores de "God Mode" (Control y Caos)
+Juegos donde el usuario controla variables de un sistema complejo.
+1. "El Ecosistema de Bolsillo"
+   * Concepto: Un simulador celular autómata (tipo Game of Life pero avanzado). El usuario coloca recursos (agua, luz) y organismos.
+   * Mecánica: Grilla 2D. Reglas de interacción: Herbívoro come Planta, Carnívoro come Herbívoro.
+   * Temáticas:
+   * Placa de Petri: Bacterias y virus.
+   * Sabana Africana: Leones y cebras (estilo pixel art).
+   * Tráfico Urbano: Coches y peatones (simulación de flujo).
+2. "Director de Orquesta del Caos"
+   * Concepto: El usuario controla el clima de una pequeña ciudad isométrica para ver cómo reaccionan los habitantes (IA simple).
+   * Mecánica: Botones para "Lluvia", "Sol", "Tornado", "Invasión Ovni".
+   * Temáticas:
+   * Ciudad Lego: Todo es desmontable.
+   * Hormiguero: Inundar túneles o dar azúcar.
+3. "Equilibrador de Civilizaciones"
+   * Concepto: Un juego de toma de decisiones binarias (tipo Reigns) para gestionar recursos de una sociedad.
+   * Mecánica: Indicadores de "Población", "Felicidad", "Recursos". Cada decisión afecta a dos o más. Si uno llega a 0, Game Over.
+   * Temáticas:
+   * Colonia en Marte: Gestión de oxígeno y moral.
+   * Culto Antiguo: Gestión de fe y sacrificios.
+Categoría B: Juguetes de Física (Basados en Matter.js/Planck.js)
+Experiencias interactivas centradas en la simulación realista.22
+4. "Arquitecto Precario"
+   * Concepto: Construir la torre más alta posible usando formas irregulares que caen del cielo.
+   * Mecánica: Física de cuerpos rígidos, fricción y restitución. Detección de altura máxima estable (3 segundos sin caer).
+   * Temáticas:
+   * Muebles: Sillas, mesas, lámparas (física "blanda" y ruidosa).
+   * Restos Romanos: Columnas, piedras (física "pesada").
+5. "El Puente de la Esperanza"
+   * Concepto: Dibujar líneas para crear estructuras que permitan a un personaje cruzar un abismo.
+   * Mecánica: Las líneas dibujadas se convierten en vigas físicas con un límite de tensión. Simulación de carga.
+   * Temáticas:
+   * Ingeniero Civil: Vigas de acero y hormigón.
+   * Mundo de Caramelo: Vigas de regaliz (flexibles) y galleta (frágiles).
+6. "Lanzamiento Orbital" (Orbital Slingshot)
+   * Concepto: Usar la gravedad de planetas para lanzar una sonda hacia un objetivo lejano.
+   * Mecánica: Cálculo de trayectorias gravitacionales (N-Body problem simplificado). Predicción de ruta visual.
+   * Temáticas:
+   * Espacio Profundo: Agujeros negros y estrellas.
+   * Golf Galáctico: Agujeros de gusano como hoyos de golf.
+7. "Líquidos Satisfactorios"
+   * Concepto: Manipular flujos de líquidos de colores para llenar recipientes, usando barreras dibujadas a mano.
+   * Mecánica: Simulación de partículas fluidas (SPH - Smoothed Particle Hydrodynamics).
+   * Temáticas:
+   * Laboratorio Químico: Líquidos reactivos que explotan al mezclarse.
+   * Fábrica de Jugos: Mezclar frutas para obtener colores específicos.
+Categoría C: Juegos de Datos y Visualización (La Escala de las Cosas)
+Inspirados en The Deep Sea y Progress.3
+8. "La Línea de Tiempo Infinita"
+   * Concepto: Scroll horizontal desde el Big Bang hasta la Muerte Térmica del Universo.
+   * Mecánica: Escala logarítmica horizontal. Hitos clicables con información.
+   * Temáticas:
+   * Historia Humana: Desde el primer homínido hasta hoy.
+   * Futurismo: Predicciones científicas de los próximos 10,000 años.
+9. "Visualizador de Velocidad de la Luz"
+   * Concepto: Un "viaje" en tiempo real a la velocidad de la luz saliendo de la Tierra. El usuario espera y ve qué alcanza (Luna: 1.3s, Marte: 3 min, etc.).
+   * Mecánica: Animación continua de estrellas pasando. Contador de tiempo y distancia real.
+   * Temáticas:
+   * Fotón Solitario: Perspectiva científica.
+   * Caracol Espacial: Una carrera absurdamente lenta comparativa.
+10. "¿Cuánto ocupa realmente?"
+   * Concepto: Visualización de áreas. "¿Cuántas pelotas de tenis caben en Central Park?".
+   * Mecánica: Mapa interactivo donde se "pintan" áreas con objetos a escala.
+   * Temáticas:
+   * Basura: Cuánta basura generas en tu vida vs tu casa.
+   * Dinero: Billetes apilados visualmente en tu habitación.
+Categoría D: Juegos de IA y Texto (Vibe Coding Games)
+Utilizando la arquitectura de Infinite Craft.9
+11. "El Detector de Mentiras AI"
+   * Concepto: El usuario escribe una anécdota. La IA analiza la probabilidad de que sea verdad o mentira basada en inconsistencias lógicas o estadísticas.
+   * Mecánica: Prompt de análisis de texto + API de probabilidad.
+   * Temáticas:
+   * Interrogatorio Policial: Luz dura, informe criminal.
+   * Confesionario: Temática religiosa/moral.
+12. "Traductor de Sueños a Realidad"
+   * Concepto: Describe un sueño y la IA genera una imagen (Stable Diffusion) y una "interpretación psicológica" pseudocientífica.
+   * Mecánica: Text-to-Image API + Text-Generation API.
+   * Temáticas:
+   * Surrealista: Estilo Dalí.
+   * Terror: Estilo pesadilla oscura.
+13. "Debate Infinito"
+   * Concepto: Escoge dos personajes (ej. Gandalf vs Elon Musk) y un tema. La IA genera un debate scriptado turno a turno.
+   * Mecánica: Generación de diálogo secuencial.
+   * Temáticas:
+   * Televisión: Formato de noticias de última hora.
+   * Ring de Boxeo: Cada argumento es un "golpe".
+14. "Evolucionador de Emojis"
+   * Concepto: Combina dos emojis para crear uno nuevo visualmente (usando IA generativa de imágenes, no solo conceptos).
+   * Mecánica: Image blending o generación img2img.
+   * Temáticas:
+   * Mutante: Emojis monstruosos.
+   * Cute: Emojis estilo kawaii.
+Categoría E: Juegos de Habilidad Absurda y "Pain Games"
+Diseñados para ser frustrantes o meditativos, como Perfect Circle.27
+15. "Alineación Perfecta"
+   * Concepto: Se presentan cuadros colgados torcidos, libros desordenados, baldosas rotas. El usuario debe ajustarlos al píxel.
+   * Mecánica: Detección de rotación y posición. Tolerancia de error mínima.
+   * Temáticas:
+   * TOC Doméstico: Cuadros en una sala.
+   * Fábrica de Chips: Alinear componentes microscópicos.
+16. "El Píxel Muerto"
+   * Concepto: Encontrar un píxel de color ligeramente diferente en una pantalla de un solo color.
+   * Mecánica: Grid de alta densidad. Diferencia de color RGB sutil (ej. #FFFFFF vs #FFFFFE).
+   * Temáticas:
+   * Monitor Retro: Estilo CRT con scanlines.
+   * Arte Moderno: Lienzos abstractos.
+17. "Simulador de Carga"
+   * Concepto: Un juego donde el objetivo es hacer que una barra de carga llegue al 100%. Ocurren eventos que la detienen (popups, errores de conexión) que el usuario debe solucionar rápido.
+   * Mecánica: Gestión de eventos aleatorios (Quick Time Events).
+   * Temáticas:
+   * Windows 95: Errores clásicos y pantallazos azules.
+   * Descarga Ilegal: Estilo años 2000, popups de publicidad.
+18. "Equilibrista de Ratón"
+   * Concepto: Mantener el cursor dentro de un camino que se mueve y estrecha, sin tocar los bordes.
+   * Mecánica: Detección de colisión de puntero.
+   * Temáticas:
+   * Operación Quirúrgica: Nervios y venas.
+   * Desactivación de Bombas: Cables y circuitos.
+Categoría F: Juegos de Geografía y Exploración
+Utilizando APIs de mapas y datos.14
+19. "¿Dónde está esa Sombra?"
+   * Concepto: Se muestra una imagen satelital de una sombra proyectada (ej. Torre Eiffel). El usuario debe adivinar la hora del día basándose en la dirección y longitud.
+   * Mecánica: Cálculo de posición solar y geometría.
+   * Temáticas:
+   * Detective: Investigando una coartada.
+   * Astrónomo: Datos científicos puros.
+20. "City Guesser Audio"
+   * Concepto: Escuchas el sonido ambiente de una ciudad (tráfico, idiomas, pájaros) y debes adivinar cuál es en un mapa.
+   * Mecánica: Base de datos de audios geo-etiquetados.
+   * Temáticas:
+   * Espía Ciego: Interfaz oscura, solo audio.
+   * Turista: Fotos borrosas que se aclaran al acertar.
+________________
+6. Documentación Técnica para la IA "Antigravity"
+Esta sección está formateada específicamente para ser copiada y pegada como prompt o instrucción maestra para una IA generadora de código. Contiene las definiciones precisas de estructuras de datos y patrones de diseño necesarios para la implementación.
+6.1. Patrón de Implementación de Juegos (Game Loop Pattern)
+Para asegurar la modularidad, cada juego debe seguir esta estructura de directorio y lógica:
+/src
+/games
+/GameName
+/config.json (Metadatos, ID, autor)
+/logic.ts (Lógica pura, sin UI, exporta hook useGameLogic)
+/UI.tsx (Componente visual que consume useGameLogic)
+/assets (Carpeta base de assets por defecto)
+/themes (Definiciones de temas)
+/dark.json
+/retro.json
+6.2. Especificación de la Interfaz de Temas (Theme Interface)
+Todos los juegos deben consumir un contexto de tema estandarizado.
+
+
+TypeScript
+
+
+
+
+// Definición de Tipo para Temas
+interface GameTheme {
+ id: string;
+ name: string;
+ colors: {
+   primary: string;
+   secondary: string;
+   background: string;
+   text: string;
+   accent: string;
+ };
+ fonts: {
+   main: string;
+   code: string; // Para números o datos técnicos
+ };
+ physics?: {
+   gravity: number; // Multiplicador de gravedad (1.0 = Tierra)
+   timeScale: number; // Velocidad del tiempo (para efectos slow-mo)
+ };
+ assets: {
+   [key: string]: string; // Mapeo de nombre lógico a URL (ej. "player" -> "/imgs/knight.png")
+ };
+ soundPack: string; // ID del paquete de sonidos
+}
+
+// Hook de React sugerido para consumo
+const useTheme = () => {
+ const context = useContext(ThemeContext);
+ if (!context) throw new Error("useTheme must be used within ThemeProvider");
+ return context.theme; // Devuelve el objeto GameTheme activo
+};
+
+6.3. Integración de Servicios de IA (AI Proxy)
+Para proteger las claves de API y gestionar costos (caching), todas las llamadas a IA deben pasar por un proxy interno.
+   * Endpoint: /api/generate-content
+   * Método: POST
+   * Body:
+JSON
+{
+ "game_id": "infinite_craft_clone",
+ "context": {"element_a": "Fire", "element_b": "Water"},
+ "theme_context": "fantasy" // Opcional: modifica el 'flavor text' de la respuesta
+}
+
+   * Lógica del Proxy:
+      1. Generar Hash del request (ej. MD5("infinite_craft_fire_water")).
+      2. Buscar en Redis/Base de Datos si el Hash existe.
+      3. Si existe -> Devolver dato cacheado (Coste $0).
+      4. Si no existe -> Llamar a OpenAI/Anthropic -> Guardar en DB -> Devolver.
+6.4. Sistema de Renderizado Universal (Canvas/WebGL)
+Para los juegos de física y visualización, se recomienda una envoltura (Wrapper) sobre Matter.js que acepte la configuración de temas.
+      * Componente: <PhysicsCanvas />
+      * Props: theme, objects, onCollision.
+      * Comportamiento:
+      * Al montar, inicializa Matter.Engine.
+      * Aplica theme.physics.gravity al mundo.
+      * Itera sobre objects y renderiza cada uno usando la textura definida en theme.assets[object.type].
+      * Maneja el redimensionamiento de ventana automáticamente para mantener la consistencia física en diferentes dispositivos.
+________________
+7. Análisis de Viabilidad y Estrategia de Contenido
+7.1. Análisis de Costos de API
+Los juegos basados en IA (Categoría D y clones de Infinite Craft) presentan un riesgo de costos exponencial.
+      * Estrategia de Mitigación: Implementar un modelo de "Consistencia Eventual". Las primeras 10,000 combinaciones más comunes (Agua+Fuego, Tierra+Viento) deben pre-generarse o "sembrarse" (seeded) en la base de datos antes del lanzamiento. La IA solo se activa para las combinaciones "de cola larga" (Long Tail) que los usuarios descubren tardíamente.
+7.2. Viralidad y Compartibilidad
+Cada juego debe tener un mecanismo de "Share" intrínseco.
+      * Snapshot Generation: Al terminar una partida o descubrir un elemento raro, el sistema debe generar una imagen sintética (Open Graph Image) con el puntaje y el tema visual utilizado, para que al compartirse en Twitter/WhatsApp se vea atractivo.
+      * Deep Linking: Las URLs deben contener el estado si es posible. antigravity.fun/game/password?score=50&theme=dark_souls.
+________________
+8. Conclusión
+La creación de una plataforma análoga a Neal.fun requiere una simbiosis entre ingeniería rigurosa y diseño caprichoso. El Proyecto Antigravity no debe limitarse a copiar los juegos existentes, sino que debe establecer un framework donde la creatividad sea modular. Al separar la lógica del juego de su presentación temática, se multiplica exponencialmente el contenido disponible: un solo juego de física se convierte en diez juegos distintos (Espacio, Submarino, Gelatina, etc.) a ojos del usuario.
+Este documento proporciona los planos arquitectónicos, la lógica de negocio y el catálogo creativo necesario para que una IA avanzada proceda con la escritura del código fuente. Se recomienda comenzar con la implementación del Motor de Temas y el clon de Infinite Craft, ya que estos validarán los componentes más complejos del sistema: la integración de IA generativa y la gestión de estado dinámico.
+________________
+Nota para el Agente Antigravity: Al implementar este código, priorice la legibilidad y la tipificación estricta (TypeScript). La base de código debe ser tratada como un motor de juegos extensible, no como una colección de scripts sueltos. Utilice tablas de búsqueda (Lookup Tables) para las configuraciones de temas para facilitar la adición de contenido generado por la comunidad en el futuro.
+Obras citadas
+      1. Neal.fun, fecha de acceso: febrero 18, 2026, https://neal.fun/
+      2. Neal Agarwal - Uses This, fecha de acceso: febrero 18, 2026, https://usesthis.com/interviews/neal.agarwal/
+      3. Scroll, scroll, scroll through the depths of the ocean - FlowingData, fecha de acceso: febrero 18, 2026, https://flowingdata.com/2019/12/05/scroll-scroll-scroll-through-the-depths-of-the-ocean/
+      4. What Is the Spend Bill Gates Money Simulator and Why Is It So Popular? - Businessabc.net, fecha de acceso: febrero 18, 2026, https://businessabc.net/Spend-Bill-Gates-Money
+      5. Web Technologies used by Neal.fun - W3Techs, fecha de acceso: febrero 18, 2026, https://w3techs.com/sites/info/neal.fun
+      6. Developing a Web Application with Netlify and MongoDB, fecha de acceso: febrero 18, 2026, https://www.netlify.com/integrations/mongodb/developing-a-web-app-with-netlify-and-setup-guide/
+      7. React Node.js MongoDB Full-Stack Pinterest App Tutorial | JWT Auth Cookie & Rest API & Photo Editing - YouTube, fecha de acceso: febrero 18, 2026, https://www.youtube.com/watch?v=x4LhjMk-mkA
+      8. I Played Every Neal.Fun Game.. - YouTube, fecha de acceso: febrero 18, 2026, https://www.youtube.com/watch?v=0xkM0-VnE4w
+      9. After failing twice, I used vibe coding to create a game inspired by Infinite Craft - Reddit, fecha de acceso: febrero 18, 2026, https://www.reddit.com/r/gamedev/comments/1mykozd/after_failing_twice_i_used_vibe_coding_to_create/
+      10. Infinite Craft Guide: Tips, Combos & Hidden Elements - DIY, fecha de acceso: febrero 18, 2026, https://diy.alibaba.com/diy-projects/infinite-craft-neal-fun
+      11. Infinite Craft: Hacking on an infinite generative AI game - Deedy Das, fecha de acceso: febrero 18, 2026, https://debarghyadas.com/writes/infinite-craft/
+      12. The Password Game - Neal.fun, fecha de acceso: febrero 18, 2026, https://neal.fun/password-game/
+      13. How to Solve Rule 16 in The Password Game: Beginner's Guide - wikiHow, fecha de acceso: febrero 18, 2026, https://www.wikihow.com/Beat-Rule-16-in-Password-Game
+      14. HOW TO BEAT "The Password Game" by Neal Agarwal - ALL 35 RULES - YouTube, fecha de acceso: febrero 18, 2026, https://www.youtube.com/watch?v=KieK6yn6H3M
+      15. Unlocking the 'Password Game': A Friendly Guide to Conquering Neal.fun's Tricky Challenge - Oreate AI Blog, fecha de acceso: febrero 18, 2026, https://www.oreateai.com/blog/unlocking-the-password-game-a-friendly-guide-to-conquering-nealfuns-tricky-challenge/a66bf86bb35a808b79f26d8b797f6ee4
+      16. What the 'Spend Bill Gates' Money' Game Says About Wealth - MEL Magazine, fecha de acceso: febrero 18, 2026, https://melmagazine.com/en-us/story/spend-bill-gates-money-game-wealth
+      17. Spend Bill Gates' Money - Neal.fun, fecha de acceso: febrero 18, 2026, https://neal.fun/spend/
+      18. Asteroid Launcher - Neal.fun, fecha de acceso: febrero 18, 2026, https://neal.fun/asteroid-launcher/
+      19. This Neal.Fun Website Simulates an Asteroid Impact; This Simulator Shows What Happens After An Asteroid Crash Into A Town - Tech Times, fecha de acceso: febrero 18, 2026, https://www.techtimes.com/articles/286600/20230122/neal-fun-website-simulates-asteroid-impact-use-town-heres.htm
+      20. I made a website that lets you launch an asteroid at Earth and see the effects [OC] - Reddit, fecha de acceso: febrero 18, 2026, https://www.reddit.com/r/dataisbeautiful/comments/zdd566/i_made_a_website_that_lets_you_launch_an_asteroid/
+      21. The Deep Sea - Neal.fun, fecha de acceso: febrero 18, 2026, https://neal.fun/deep-sea/
+      22. Collection: JavaScript Game Engines · GitHub, fecha de acceso: febrero 18, 2026, https://github.com/collections/javascript-game-engines
+      23. Matter.js - a 2D rigid body JavaScript physics engine · code by @liabru, fecha de acceso: febrero 18, 2026, https://brm.io/matter-js/
+      24. How to apply physics to complex shapes? (matter.js + p5.js) - Stack Overflow, fecha de acceso: febrero 18, 2026, https://stackoverflow.com/questions/68602889/how-to-apply-physics-to-complex-shapes-matter-js-p5-js
+      25. I Spent All Of Bill Gates' Money! - YouTube, fecha de acceso: febrero 18, 2026, https://www.youtube.com/watch?v=YUcejh5hGPw
+      26. Infinite Craft with large language model - FlowingData, fecha de acceso: febrero 18, 2026, https://flowingdata.com/2024/02/02/infinite-craft-with-large-language-model/
+      27. Draw the perfect circle - What's your best score? : r/WebGames - Reddit, fecha de acceso: febrero 18, 2026, https://www.reddit.com/r/WebGames/comments/1p9kfbq/draw_the_perfect_circle_whats_your_best_score/
+      28. Draw a Perfect Circle ⭕️ - Neal.fun, fecha de acceso: febrero 18, 2026, https://neal.fun/perfect-circle/
