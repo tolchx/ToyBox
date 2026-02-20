@@ -21,6 +21,7 @@
 - **Modo Oscuro/Claro**: Interfaz adaptable a tus preferencias
 - **Sistema de Premium**: Controles adicionales para usuarios premium
 - **Panel de Administración**: Gestión dinámica de juegos
+- **Sistema Social**: Chat, amigos y notificaciones en tiempo real
 - **Reproductor Global de Música**: Música de fondo mientras juegas
 - **Diseño Responsivo**: Funciona perfectamente en todos los dispositivos
 
@@ -86,6 +87,23 @@ Explora el mundo a través de experiencias sensoriales.
 - **Guardado Progresivo**: Tu progreso se guarda en la nube
 - **Acceso Anticipado**: Nuevos juegos antes que los usuarios free
 - **Temas Exclusivos**: Skins personalizados para la interfaz
+
+- **Temas Exclusivos**: Skins personalizados para la interfaz
+
+---
+
+## 🤝 Sistema Social
+
+### 💬 Chat & Mensajería
+- **Chat Global**: Conversa con todos los usuarios conectados.
+- **Mensajes Privados**: Chatea directamente con tus amigos.
+- **Interfaz Moderna**: Diseño estilo Intercom, no intrusivo y colapsable.
+
+### 👥 Amigos & Comunidad
+- **Solicitudes de Amistad**: Envía y recibe solicitudes para conectar.
+- **Estado en Línea**: Ve cuándo tus amigos están activos.
+- **Notificaciones**: Alertas en tiempo real para interacciones importantes.
+- **Perfiles**: Personaliza tu bio y avatar (generado automáticamente).
 
 ---
 

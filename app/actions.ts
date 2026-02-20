@@ -20,6 +20,12 @@ const LoginSchema = z.object({
     password: z.string().min(1, 'Password is required'),
 })
 
+/**
+ * Authenticates a user using the provided credentials.
+ * @param prevState - The previous state of the form (for useFormState).
+ * @param formData - The form data containing email and password.
+ * @returns An error message if authentication fails, or redirects on success.
+ */
 export async function authenticate(prevState: string | undefined, formData: FormData) {
     try {
         await signIn('credentials', formData)
@@ -36,6 +42,12 @@ export async function authenticate(prevState: string | undefined, formData: Form
     }
 }
 
+/**
+ * Registers a new user with the provided details.
+ * @param prevState - The previous state of the form.
+ * @param formData - The form data containing username, email, and password.
+ * @returns A success or error message.
+ */
 export async function register(prevState: string | undefined, formData: FormData) {
     const validatedFields = RegisterSchema.safeParse({
         username: formData.get('username'),
@@ -81,6 +93,9 @@ export async function register(prevState: string | undefined, formData: FormData
     return 'success'
 }
 
+/**
+ * Logs out the current user.
+ */
 export async function logout() {
     await signOut()
 }
@@ -91,6 +106,12 @@ const UpdateProfileSchema = z.object({
     bio: z.string().optional(),
 })
 
+/**
+ * Updates the current user's profile information.
+ * @param prevState - The previous state of the form.
+ * @param formData - The form data containing name, alias, and bio.
+ * @returns An object indicating success or error.
+ */
 export async function updateProfile(prevState: any, formData: FormData) {
     const session = await auth()
     if (!session?.user?.id) return { error: 'Unauthorized' }
@@ -131,6 +152,15 @@ export async function updateProfile(prevState: any, formData: FormData) {
 
 // Social Actions
 
+/**
+ * Sends a message to a user or a group.
+ * @param content - The text content of the message.
+ * @param groupId - The ID of the group to send to (optional).
+ * @param receiverId - The ID of the user to send to (optional).
+ * @param type - The type of message (default: 'text').
+ * @param metadata - Additional metadata for the message.
+ * @returns 'success' or an error message.
+ */
 export async function sendMessage(content: string, groupId?: string, receiverId?: string, type: string = 'text', metadata: string | null = null) {
     const session = await auth()
     if (!session?.user?.id) return 'Unauthorized'
@@ -158,6 +188,12 @@ export async function sendMessage(content: string, groupId?: string, receiverId?
     }
 }
 
+/**
+ * Retrieves messages for a specific group or direct message conversation.
+ * @param groupId - The ID of the group to fetch messages for.
+ * @param otherUserId - The ID of the other user in a direct message conversation.
+ * @returns An array of messages with sender details.
+ */
 export async function getMessages(groupId?: string, otherUserId?: string) {
     const session = await auth()
     if (!session?.user?.id) return []
@@ -197,6 +233,11 @@ export async function getMessages(groupId?: string, otherUserId?: string) {
     }
 }
 
+/**
+ * Retrieves a list of users for the chat interface.
+ * Also updates the current user's 'lastSeen' status.
+ * @returns An array of users with selected fields.
+ */
 export async function getUsers() {
     const session = await auth()
 
@@ -222,6 +263,11 @@ export async function getUsers() {
     return users
 }
 
+/**
+ * Sends a friend request to another user.
+ * @param targetUserId - The ID of the user to send the request to.
+ * @returns 'success' or an error message.
+ */
 export async function sendFriendRequest(targetUserId: string) {
     const session = await auth()
     if (!session?.user?.id) return 'Unauthorized'
@@ -252,6 +298,12 @@ export async function sendFriendRequest(targetUserId: string) {
     }
 }
 
+/**
+ * Accepts a pending friend request.
+ * Creates a friendship record for both users and deletes the request.
+ * @param requestId - The ID of the friend request to accept.
+ * @returns 'success' or an error message.
+ */
 export async function acceptFriendRequest(requestId: string) {
     const session = await auth()
     if (!session?.user?.id) return 'Unauthorized'
@@ -290,6 +342,10 @@ export async function acceptFriendRequest(requestId: string) {
     }
 }
 
+/**
+ * Retrieves unread notifications for the current user.
+ * @returns An array of unread notifications.
+ */
 export async function getNotifications() {
     const session = await auth()
     if (!session?.user?.id) return []
@@ -301,6 +357,11 @@ export async function getNotifications() {
     })
 }
 
+/**
+ * Marks a specific notification as read.
+ * @param id - The ID of the notification to mark as read.
+ * @returns 'success' or an error message.
+ */
 export async function markNotificationRead(id: string) {
     const session = await auth()
     if (!session?.user?.id) return 'Unauthorized'
