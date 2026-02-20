@@ -51,6 +51,9 @@ const translations: Record<string, Record<string, string>> = {
         "admin_delete": "Delete",
         "admin_confirm_delete": "Are you sure you want to delete this game?",
         "admin_game_added": "Game added!",
+        "game_hidden": "Game hidden",
+        "confirm_hide": "Hide this game from your library?",
+        "confirm_delete_global": "DELETE GLOBALLY? This will remove the game for ALL users.",
 
         // Login page
         "login_title": "Admin Login",
@@ -180,6 +183,9 @@ const translations: Record<string, Record<string, string>> = {
         "admin_delete": "Eliminar",
         "admin_confirm_delete": "¿Estás seguro de que quieres eliminar este juego?",
         "admin_game_added": "¡Juego agregado!",
+        "game_hidden": "Juego oculto",
+        "confirm_hide": "¿Ocultar este juego de tu biblioteca?",
+        "confirm_delete_global": "¿ELIMINAR GLOBALMENTE? Esto borrará el juego para TODOS los usuarios.",
 
         // Login page
         "login_title": "Inicio de Sesión Admin",

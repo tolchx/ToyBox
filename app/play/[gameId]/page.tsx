@@ -20,6 +20,7 @@ import LieDetectorGame from '@/components/games/LieDetectorGame';
 import InfiniteDebateGame from '@/components/games/InfiniteDebateGame';
 import CityGuesserAudioGame from '@/components/games/CityGuesserAudioGame';
 import PrecariousArchitectGame from '@/components/games/PrecariousArchitectGame';
+import LevelDevilGame from '@/components/games/LevelDevilGame';
 import GameTutorial from '@/components/GameTutorial';
 import { gameTutorials } from '@/lib/tutorials';
 
@@ -44,6 +45,7 @@ const nativeGames: Record<string, React.ComponentType> = {
     'infinite-debate': InfiniteDebateGame,
     'city-guesser-audio': CityGuesserAudioGame,
     'precarious-architect': PrecariousArchitectGame,
+    'level-devil': LevelDevilGame,
 };
 
 export default function GamePage({ params }: PageProps) {
@@ -56,9 +58,10 @@ export default function GamePage({ params }: PageProps) {
         notFound();
     }
 
-    const { isPremium } = useUser();
-    const [bgImage, setBgImage] = useState('');
-    const [musicUrl, setMusicUrl] = useState('');
+    // Use global preferences from UserContext
+    const { isPremium, preferences } = useUser();
+    const { bgImage, musicUrl } = preferences;
+
     const [showTutorial, setShowTutorial] = useState(false);
     const hasTutorial = !!gameTutorials[gameId];
 
@@ -117,47 +120,7 @@ export default function GamePage({ params }: PageProps) {
                 </div>
             </header>
 
-            {isPremium && (
-                <div className="absolute top-20 right-4 z-20 bg-white/90 dark:bg-gray-900/90 backdrop-blur p-4 rounded-xl shadow-lg border border-yellow-200 dark:border-yellow-800">
-                    <h3 className="font-bold text-sm mb-2 text-yellow-600 dark:text-yellow-400">{t('premium_controls')}</h3>
-
-                    <div className="mb-3">
-                        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 block mb-1">{t('bg_image_label')}</label>
-                        <input
-                            type="text"
-                            value={bgImage}
-                            onChange={(e) => setBgImage(e.target.value)}
-                            placeholder="https://..."
-                            className="w-48 text-xs p-1 border dark:border-gray-700 rounded dark:bg-gray-800 dark:text-white"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 block mb-1">{t('music_label')}</label>
-                        <input
-                            type="text"
-                            value={musicUrl}
-                            onChange={(e) => setMusicUrl(e.target.value)}
-                            placeholder={t('music_placeholder')}
-                            className="w-48 text-xs p-1 border dark:border-gray-700 rounded dark:bg-gray-800 dark:text-white"
-                        />
-                    </div>
-
-                    {musicUrl && (
-                        <div className="mt-2 w-48 h-28 bg-black rounded overflow-hidden">
-                            <iframe
-                                width="100%"
-                                height="100%"
-                                src={`https://www.youtube.com/embed/${musicUrl}?autoplay=1&loop=1`}
-                                title="Music"
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                    )}
-                </div>
-            )}
+            {/* Premium Controls moved to Profile Page */}
 
             <div className="flex-1 w-full relative z-0 flex items-stretch overflow-hidden">
                 {isNative ? (
@@ -198,6 +161,19 @@ export default function GamePage({ params }: PageProps) {
 
             {showTutorial && hasTutorial && (
                 <GameTutorial gameId={gameId} onClose={handleCloseTutorial} />
+            )}
+
+            {/* Global Music Player (Hidden but active) */}
+            {isPremium && musicUrl && (
+                <div className="hidden">
+                    <iframe
+                        width="0"
+                        height="0"
+                        src={`https://www.youtube.com/embed/${musicUrl}?autoplay=1&loop=1`}
+                        title="Music"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    ></iframe>
+                </div>
             )}
         </div>
     );

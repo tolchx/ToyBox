@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { Game } from '@/lib/games';
 import { useLanguage } from '@/lib/language';
+import { useGames } from '@/lib/game-context';
+import { useUser } from '@/lib/user-context';
 
 interface GameCardProps {
     game: Game;
@@ -18,7 +20,7 @@ const difficultyConfig: Record<string, { label: string; label_es: string; color:
 
 function PasswordGameCover({ accent }: { accent: string }) {
     return (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pb-14">
             <div className="absolute top-6 left-6 text-2xl opacity-20 animate-pulse">🔑</div>
             <div className="absolute top-10 right-8 text-lg opacity-15">🔐</div>
             <div className="absolute bottom-28 left-10 text-lg opacity-15 animate-pulse" style={{ animationDelay: '1s' }}>✱</div>
@@ -51,14 +53,14 @@ function PasswordGameCover({ accent }: { accent: string }) {
 function InfiniteCraftCover({ accent }: { accent: string }) {
     const { t } = useLanguage();
     const elements = [
-        { emoji: '💧', labelKey: 'water', x: '22%', y: '22%', delay: '0s' },
-        { emoji: '🔥', labelKey: 'fire', x: '78%', y: '20%', delay: '0.5s' },
-        { emoji: '🌍', labelKey: 'earth', x: '20%', y: '60%', delay: '1s' },
-        { emoji: '💨', labelKey: 'wind', x: '80%', y: '58%', delay: '1.5s' },
+        { emoji: '💧', labelKey: 'water', x: '22%', y: '18%', delay: '0s' },
+        { emoji: '🔥', labelKey: 'fire', x: '78%', y: '16%', delay: '0.5s' },
+        { emoji: '🌍', labelKey: 'earth', x: '20%', y: '52%', delay: '1s' },
+        { emoji: '💨', labelKey: 'wind', x: '80%', y: '50%', delay: '1.5s' },
     ];
 
     return (
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center pb-14">
             {elements.map((el, i) => (
                 <div
                     key={i}
@@ -97,7 +99,7 @@ function InfiniteCraftCover({ accent }: { accent: string }) {
 
 function MoneyCover({ accent }: { accent: string }) {
     return (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pb-14">
             <div className="absolute top-4 left-5 text-xl opacity-20 animate-pulse">💵</div>
             <div className="absolute top-8 right-6 text-lg opacity-15" style={{ animationDelay: '0.5s' }}>💎</div>
             <div className="absolute bottom-24 left-8 text-lg opacity-15 animate-pulse" style={{ animationDelay: '1s' }}>🏠</div>
@@ -108,7 +110,7 @@ function MoneyCover({ accent }: { accent: string }) {
             >
                 <span className="text-4xl">💰</span>
             </div>
-            <div className="font-mono text-sm font-bold opacity-50" style={{ color: accent }}>
+            <div className="font-mono text-sm font-bold opacity-50 mb-6" style={{ color: accent }}>
                 $100,000,000,000
             </div>
         </div>
@@ -117,7 +119,7 @@ function MoneyCover({ accent }: { accent: string }) {
 
 function LoadingCover({ accent }: { accent: string }) {
     return (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pb-14">
             <div className="text-xs font-mono opacity-40" style={{ color: accent }}>C:\WINDOWS\system32&gt;</div>
             <div className="w-32 h-4 rounded-full overflow-hidden" style={{ backgroundColor: `${accent}22`, border: `1px solid ${accent}44` }}>
                 <div
@@ -140,7 +142,7 @@ function seededRandom(seed: number): number {
 
 function PixelsCover({ accent }: { accent: string }) {
     return (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pb-14">
             <div className="grid grid-cols-8 gap-0.5 opacity-40">
                 {[...Array(64)].map((_, i) => (
                     <div
@@ -159,7 +161,7 @@ function PixelsCover({ accent }: { accent: string }) {
 
 function OrbitalCover({ accent }: { accent: string }) {
     return (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pb-14">
             <div className="relative w-32 h-32">
                 <div className="absolute inset-0 rounded-full border border-dashed opacity-20" style={{ borderColor: accent }} />
                 <div className="absolute inset-4 rounded-full border border-dashed opacity-20" style={{ borderColor: accent }} />
@@ -175,7 +177,7 @@ function OrbitalCover({ accent }: { accent: string }) {
 
 function DefaultCover({ icon, accent }: { icon: string; accent: string }) {
     return (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pb-14">
             <div
                 className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg"
                 style={{ backgroundColor: `${accent}22`, border: `2px solid ${accent}44` }}
@@ -212,11 +214,23 @@ const PLAYABLE_IDS = new Set([
     'spend-money', 'dead-pixel', 'loading-simulator', 'mouse-balancer', 'perfect-alignment',
     'pocket-ecosystem', 'speed-of-light', 'chaos-conductor', 'orbital-slingshot',
     'infinite-timeline', 'lie-detector', 'infinite-debate', 'city-guesser-audio',
-    'precarious-architect',
+    'precarious-architect', 'level-devil',
 ]);
 
 export default function GameCard({ game, variant = 'default' }: GameCardProps) {
-    const { language } = useLanguage();
+    const { language, t } = useLanguage();
+    const { editMode, deleteGame, hideGame } = useGames();
+    const { isAdmin: isContextAdmin } = useUser();
+    // Using context for admin check is unreliable in some renders if not updated? 
+    // Actually useUser is robust.
+    const isSessionAdmin = isContextAdmin;
+
+    // Wait, useUser sets isAdmin based on session.
+    // If user is not logged in, useUser might throw? No, useUser returns user: null.
+    // But we need to use 'useUser' from context.
+
+    // Check if useUser needs to be imported? It is not imported in original snippet but used inside Navbar.
+    // I need to import it.
     const [gradFrom, gradTo] = game.theme.gradient;
     const gameTitle = language === 'es' && game.title_es ? game.title_es : game.title;
     const gameDescription = language === 'es' && game.description_es ? game.description_es : game.description;
@@ -280,6 +294,50 @@ export default function GameCard({ game, variant = 'default' }: GameCardProps) {
                     </div>
                 )}
 
+                {/* Edit Mode Delete Overlay */}
+                {/* Edit Mode Overlay */}
+                {editMode && (
+                    <div className="absolute top-3 right-3 z-20">
+                        {isSessionAdmin ? (
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (confirm(t('confirm_delete_global'))) {
+                                        deleteGame(game.id);
+                                    }
+                                }}
+                                className="p-2 rounded-full bg-red-500 text-white shadow-lg hover:bg-red-600 hover:scale-110 transition-all animate-bounce"
+                                title={t('admin_delete')}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M18 6 6 18" />
+                                    <path d="m6 6 12 12" />
+                                </svg>
+                            </button>
+                        ) : (
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (confirm(t('confirm_hide'))) {
+                                        hideGame(game.id);
+                                    }
+                                }}
+                                className="p-2 rounded-full bg-blue-500 text-white shadow-lg hover:bg-blue-600 hover:scale-110 transition-all"
+                                title={t('game_hidden')}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                                    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                                    <line x1="2" y1="2" x2="22" y2="22" />
+                                </svg>
+                            </button>
+                        )}
+                    </div>
+                )}
+
                 {/* Cover art */}
                 <GameCoverArt game={game} />
 
@@ -304,6 +362,6 @@ export default function GameCard({ game, variant = 'default' }: GameCardProps) {
                     <p className="text-xs text-white/50 line-clamp-1">{gameDescription}</p>
                 </div>
             </div>
-        </Link>
+        </Link >
     );
 }

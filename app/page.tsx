@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import GameCard from '@/components/GameCard';
 import { useLanguage } from '@/lib/language';
 import { useGames } from '@/lib/game-context';
@@ -45,6 +45,38 @@ export default function Home() {
       carouselRef.current.style.removeProperty('user-select');
     }
   }, []);
+
+  // Auto-scroll and Arrows
+  const [isPaused, setIsPaused] = useState(false);
+
+  const scroll = useCallback((direction: 'left' | 'right') => {
+    if (!carouselRef.current) return;
+    const scrollAmount = 300; // Approx card width + gap
+    const targetScroll = carouselRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount);
+    carouselRef.current.scrollTo({
+      left: targetScroll,
+      behavior: 'smooth'
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+    
+    const interval = setInterval(() => {
+      if (!carouselRef.current) return;
+      
+      // Check if we reached the end
+      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+      if (scrollLeft + clientWidth >= scrollWidth - 10) {
+        // Reset to start gently
+        carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        scroll('right');
+      }
+    }, 3000); // Scroll every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [isPaused, scroll]);
 
   const handleCardClick = useCallback((e: React.MouseEvent) => {
     if (hasDragged.current) {
@@ -136,7 +168,21 @@ export default function Home() {
 
       {/* Featured Games Carousel */}
       {!searchQuery && activeCategory === 'all' && featuredGames.length > 0 && (
-        <section className="max-w-7xl mx-auto px-6 -mt-8 relative z-10 mb-8">
+        <section className="max-w-7xl mx-auto px-6 -mt-8 relative z-10 mb-8 group"
+                 onMouseEnter={() => setIsPaused(true)}
+                 onMouseLeave={() => setIsPaused(false)}>
+          
+          {/* Left Arrow */}
+          <button 
+            onClick={() => scroll('left')}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/80 dark:bg-black/50 backdrop-blur-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 hover:bg-white dark:hover:bg-black text-gray-800 dark:text-white"
+            aria-label="Scroll left"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
           <div
             ref={carouselRef}
             className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
@@ -152,6 +198,17 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          {/* Right Arrow */}
+          <button 
+            onClick={() => scroll('right')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/80 dark:bg-black/50 backdrop-blur-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white dark:hover:bg-black text-gray-800 dark:text-white"
+            aria-label="Scroll right"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </section>
       )}
 

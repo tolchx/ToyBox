@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLanguage } from '@/lib/language';
+import Scene from './speed-of-light/Scene';
 
 interface Milestone {
     name: string;
@@ -61,6 +62,7 @@ export default function SpeedOfLightGame() {
     const [traveling, setTraveling] = useState(false);
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [timeScale, setTimeScale] = useState(1);
+    const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
     const animRef = useRef<number>(0);
     const lastTimeRef = useRef<number>(0);
     const elapsedRef = useRef(0);
@@ -100,160 +102,217 @@ export default function SpeedOfLightGame() {
         setTimeScale(1);
     };
 
-    const starCount = 60;
-    const stars = useRef(
-        Array.from({ length: starCount }, () => ({
-            x: Math.random() * 100,
-            y: Math.random() * 100,
-            size: 1 + Math.random() * 2,
-            speed: 0.5 + Math.random() * 2,
-        }))
-    );
+    const handleTravelTo = (milestone: Milestone) => {
+        const seconds = milestone.distanceKm / SPEED_OF_LIGHT_KM_S;
+        setElapsedSeconds(seconds);
+        elapsedRef.current = seconds;
+        setTraveling(false);
+    };
 
     return (
         <div className="h-full bg-black text-white flex flex-col relative overflow-hidden">
-            {/* Star field background */}
-            <div className="absolute inset-0 overflow-hidden">
-                {stars.current.map((star, i) => (
-                    <div
-                        key={i}
-                        className="absolute rounded-full bg-white"
-                        style={{
-                            left: `${star.x}%`,
-                            top: `${star.y}%`,
-                            width: `${star.size}px`,
-                            height: `${star.size}px`,
-                            opacity: 0.3 + Math.random() * 0.5,
-                            animation: traveling ? `streakStar ${3 / (star.speed * Math.min(timeScale, 10))}s linear infinite` : 'twinkle 3s ease-in-out infinite',
-                            animationDelay: `${Math.random() * 3}s`,
-                        }}
-                    />
-                ))}
+            {/* 3D Scene Background */}
+            <div className="absolute inset-0 z-0">
+                <Scene
+                    traveling={traveling}
+                    timeScale={timeScale}
+                    distanceTraveled={distanceTraveled}
+                    milestones={milestones}
+                />
             </div>
 
-            {/* Main content */}
-            <div className="relative z-10 flex flex-col items-center p-2 sm:p-4 md:p-8 flex-1 overflow-auto">
-                {/* Title */}
-                <div className="text-center mb-6">
-                    <h1 className="text-2xl md:text-3xl font-black mb-1">
-                        {language === 'es' ? '💫 Viajero a la Velocidad de la Luz' : '💫 Speed of Light Voyager'}
-                    </h1>
-                    <p className="text-gray-400 text-sm">
-                        {language === 'es'
-                            ? 'Viaja a 299.792 km/s desde la Tierra en tiempo real'
-                            : 'Travel at 299,792 km/s from Earth in real-time'}
-                    </p>
-                </div>
+            {/* Main content (HUD) */}
+            <div className="relative z-10 h-full w-full pointer-events-none">
 
-                {/* Dashboard */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 w-full max-w-lg">
-                    <div className="bg-gray-900/80 rounded-xl p-3 text-center border border-gray-800">
-                        <div className="text-xs text-gray-500 mb-1">{language === 'es' ? 'Distancia' : 'Distance'}</div>
-                        <div className="text-lg font-bold text-amber-400 font-mono">{formatDistance(distanceTraveled)}</div>
-                    </div>
-                    <div className="bg-gray-900/80 rounded-xl p-3 text-center border border-gray-800">
-                        <div className="text-xs text-gray-500 mb-1">{language === 'es' ? 'Tiempo' : 'Time'}</div>
-                        <div className="text-lg font-bold text-cyan-400 font-mono">{formatTime(elapsedSeconds)}</div>
-                    </div>
-                    <div className="bg-gray-900/80 rounded-xl p-3 text-center border border-gray-800">
-                        <div className="text-xs text-gray-500 mb-1">{language === 'es' ? 'Velocidad' : 'Speed'}</div>
-                        <div className="text-lg font-bold text-emerald-400 font-mono">c × {timeScale}</div>
-                    </div>
-                </div>
+                {/* Left Panel - Info & Controls */}
+                <div className="absolute top-4 left-4 w-80 max-h-[calc(100vh-2rem)] flex flex-col gap-4 pointer-events-auto overflow-y-auto scrollbar-none">
 
-                {/* Light distance */}
-                <div className="text-center mb-4 text-sm text-gray-400">
-                    {formatLightTime(distanceTraveled)}
-                </div>
+                    {/* Title */}
+                    <div className="bg-black/50 p-4 rounded-xl backdrop-blur-sm border border-white/10">
+                        <h1 className="text-xl font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 leading-tight">
+                            {language === 'es' ? 'Viajero a la Velocidad de la Luz' : 'Speed of Light Voyager'}
+                        </h1>
+                        <p className="text-gray-400 text-xs font-medium">
+                            {language === 'es'
+                                ? 'Viaja a 299.792 km/s desde la Tierra'
+                                : 'Travel at 299,792 km/s from Earth'}
+                        </p>
+                    </div>
 
-                {/* Progress to next milestone */}
-                {nextMilestone && (
-                    <div className="w-full max-w-lg mb-6">
-                        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                            <span>{language === 'es' ? 'Siguiente' : 'Next'}: {nextMilestone.emoji} {language === 'es' ? nextMilestone.name_es : nextMilestone.name}</span>
-                            <span>{formatDistance(nextMilestone.distanceKm - distanceTraveled)}</span>
+                    {/* Stats Compact */}
+                    <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-black/60 backdrop-blur-md rounded-xl p-3 border border-amber-500/30">
+                            <div className="text-[10px] text-amber-200 uppercase tracking-wider">{language === 'es' ? 'Distancia' : 'Distance'}</div>
+                            <div className="text-sm font-bold text-amber-400 font-mono truncate">{formatDistance(distanceTraveled)}</div>
                         </div>
-                        <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                        <div className="bg-black/60 backdrop-blur-md rounded-xl p-3 border border-cyan-500/30">
+                            <div className="text-[10px] text-cyan-200 uppercase tracking-wider">{language === 'es' ? 'Tiempo' : 'Time'}</div>
+                            <div className="text-sm font-bold text-cyan-400 font-mono truncate">{formatTime(elapsedSeconds)}</div>
+                        </div>
+                        <div className="col-span-2 bg-black/60 backdrop-blur-md rounded-xl p-3 border border-emerald-500/30 flex justify-between items-center">
+                            <div className="text-[10px] text-emerald-200 uppercase tracking-wider">{language === 'es' ? 'Velocidad' : 'Speed'}</div>
+                            <div className="text-sm font-bold text-emerald-400 font-mono">c × {timeScale}</div>
+                        </div>
+                    </div>
+
+                    {/* Light Distance Badge */}
+                    <div className="text-center text-xs text-cyan-300 font-mono bg-black/40 px-3 py-1.5 rounded-full border border-cyan-500/20 backdrop-blur-sm self-start">
+                        {formatLightTime(distanceTraveled)}
+                    </div>
+
+                    {/* Controls */}
+                    <div className="bg-black/60 p-4 rounded-xl backdrop-blur-md border border-white/10 flex flex-col gap-3">
+                        {/* Time Scale */}
+                        <div className="flex flex-wrap gap-1 justify-center">
+                            {[1, 10, 60, 600, 3600].map(scale => (
+                                <button
+                                    key={scale}
+                                    onClick={() => setTimeScale(scale)}
+                                    className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all border flex-1 whitespace-nowrap ${timeScale === scale
+                                        ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.3)]'
+                                        : 'bg-transparent border-transparent text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                                        }`}
+                                >
+                                    {scale === 1 ? '1×' : scale === 10 ? '10×' : scale === 60 ? '1m/s' : scale === 600 ? '10m/s' : '1h/s'}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Main Actions */}
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={reset}
+                                className="flex-1 bg-gray-800/80 hover:bg-gray-700 text-gray-400 py-2 rounded-lg border border-gray-600 transition-all hover:scale-105 active:scale-95 text-xs font-bold uppercase tracking-wider"
+                            >
+                                {language === 'es' ? 'Reiniciar' : 'Reset'}
+                            </button>
+
+                            <button
+                                onClick={() => setTraveling(!traveling)}
+                                className={`flex-[2] py-2 rounded-lg flex items-center justify-center gap-2 transition-all transform hover:scale-105 active:scale-95 shadow-lg border ${traveling
+                                    ? 'bg-red-600 hover:bg-red-500 border-red-800 shadow-red-500/50 text-white'
+                                    : 'bg-cyan-600 hover:bg-cyan-500 border-cyan-800 shadow-cyan-500/50 text-white'
+                                    }`}
+                            >
+                                {traveling ? (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="0" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                                        <span className="text-xs font-bold uppercase tracking-wider">{language === 'es' ? 'Pausar' : 'Pause'}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                        <span className="text-xs font-bold uppercase tracking-wider">{language === 'es' ? 'Viajar' : 'Travel'}</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Panel - Milestones & Log */}
+                <div className="absolute top-4 right-4 w-80 max-h-[calc(100vh-2rem)] flex flex-col gap-4 pointer-events-auto overflow-y-auto scrollbar-none">
+
+                    {/* Next Milestone */}
+                    {nextMilestone && (
+                        <div className="bg-black/60 p-3 rounded-xl border border-white/10 backdrop-blur-md">
+                            <div className="flex justify-between text-xs text-gray-300 mb-2 font-medium">
+                                <span>{language === 'es' ? 'Siguiente' : 'Next'}: <span className="text-yellow-400">{nextMilestone.emoji} {language === 'es' ? nextMilestone.name_es : nextMilestone.name}</span></span>
+                            </div>
+                            <div className="flex justify-between text-[10px] text-gray-500 mb-1">
+                                <span>{formatDistance(nextMilestone.distanceKm - distanceTraveled)} {language === 'es' ? 'restantes' : 'remaining'}</span>
+                            </div>
+                            <div className="h-2 bg-gray-800 rounded-full overflow-hidden border border-white/5 relative">
+                                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,0.1) 5px, rgba(255,255,255,0.1) 10px)' }}></div>
+                                <div
+                                    className="h-full bg-gradient-to-r from-cyan-600 via-blue-500 to-purple-500 rounded-full transition-all duration-200"
+                                    style={{ width: `${Math.min(progressToNext, 100)}%` }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Passed Milestones Log */}
+                    <div className="flex-1 min-h-[150px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent mask-linear-fade-bottom pb-20">
+                        {[...passedMilestones].reverse().map((m, i) => (
                             <div
-                                className="h-full bg-gradient-to-r from-amber-500 to-amber-300 rounded-full transition-all duration-200"
-                                style={{ width: `${Math.min(progressToNext, 100)}%` }}
-                            />
+                                key={m.name}
+                                className={`group relative flex items-center gap-3 p-2.5 mb-2 rounded-xl border backdrop-blur-sm transition-all animate-in slide-in-from-left-2 cursor-pointer hover:bg-white/10 ${i === 0
+                                    ? 'bg-gradient-to-r from-amber-500/20 to-transparent border-amber-500/40 text-amber-100'
+                                    : 'bg-black/40 border-white/5 text-gray-400'
+                                    }`}
+                                onClick={() => handleTravelTo(m)}
+                            >
+                                <span className="text-xl filter drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">{m.emoji}</span>
+                                <div className="flex-1 min-w-0">
+                                    <div className={`font-bold text-xs truncate ${i === 0 ? 'text-amber-300' : 'text-gray-300'}`}>
+                                        {language === 'es' ? m.name_es : m.name}
+                                    </div>
+                                    <div className="text-[10px] opacity-70 truncate">{language === 'es' ? m.fact_es : m.fact}</div>
+                                </div>
+                                <button
+                                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-full hover:bg-white/20 text-cyan-400 transition-all"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedMilestone(m);
+                                    }}
+                                    title="Info"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Info Modal */}
+                {selectedMilestone && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 pointer-events-auto">
+                        <div className="bg-gray-900 border border-white/10 p-6 rounded-2xl max-w-sm w-full shadow-2xl relative animate-in zoom-in-95 duration-200">
+                            <button
+                                onClick={() => setSelectedMilestone(null)}
+                                className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                            <div className="text-center mb-6">
+                                <div className="text-6xl mb-4 animate-bounce-slow">{selectedMilestone.emoji}</div>
+                                <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
+                                    {language === 'es' ? selectedMilestone.name_es : selectedMilestone.name}
+                                </h2>
+                            </div>
+                            <div className="space-y-4">
+                                <div className="bg-black/40 p-3 rounded-xl border border-white/5">
+                                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{language === 'es' ? 'Distancia desde la Tierra' : 'Distance from Earth'}</div>
+                                    <div className="font-mono text-cyan-300">{formatDistance(selectedMilestone.distanceKm)}</div>
+                                </div>
+                                <div className="bg-black/40 p-3 rounded-xl border border-white/5">
+                                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{language === 'es' ? 'Tiempo Luz' : 'Light Time'}</div>
+                                    <div className="font-mono text-cyan-300">{formatLightTime(selectedMilestone.distanceKm)}</div>
+                                </div>
+                                <div className="p-3">
+                                    <div className="text-sm text-gray-300 italic text-center">
+                                        "{language === 'es' ? selectedMilestone.fact_es : selectedMilestone.fact}"
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    handleTravelTo(selectedMilestone);
+                                    setSelectedMilestone(null);
+                                }}
+                                className="w-full mt-6 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-cyan-500/20"
+                            >
+                                {language === 'es' ? 'Viajar Aquí' : 'Travel Here'}
+                            </button>
                         </div>
                     </div>
                 )}
-
-                {/* Controls */}
-                <div className="flex items-center gap-3 mb-6">
-                    <button
-                        onClick={() => setTraveling(!traveling)}
-                        className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                            traveling
-                                ? 'bg-red-600 hover:bg-red-500'
-                                : 'bg-amber-500 hover:bg-amber-400 text-black'
-                        }`}
-                    >
-                        {traveling
-                            ? (language === 'es' ? '⏸ Pausar' : '⏸ Pause')
-                            : (language === 'es' ? '🚀 Viajar' : '🚀 Launch')}
-                    </button>
-                    <button onClick={reset} className="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold text-sm">
-                        {language === 'es' ? '↺ Reiniciar' : '↺ Reset'}
-                    </button>
-                </div>
-
-                {/* Time scale */}
-                <div className="flex items-center gap-1 sm:gap-2 mb-6 flex-wrap justify-center">
-                    <span className="text-xs text-gray-500">{language === 'es' ? 'Escala de tiempo:' : 'Time scale:'}</span>
-                    {[1, 10, 60, 600, 3600].map(scale => (
-                        <button
-                            key={scale}
-                            onClick={() => setTimeScale(scale)}
-                            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                                timeScale === scale
-                                    ? 'bg-amber-500 text-black'
-                                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                            }`}
-                        >
-                            {scale === 1 ? '1×' : scale === 10 ? '10×' : scale === 60 ? '1min/s' : scale === 600 ? '10min/s' : '1hr/s'}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Milestones reached */}
-                <div className="w-full max-w-lg space-y-2 overflow-y-auto max-h-64">
-                    {[...passedMilestones].reverse().map((m, i) => (
-                        <div
-                            key={m.name}
-                            className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                                i === 0 ? 'bg-amber-500/10 border-amber-500/30' : 'bg-gray-900/50 border-gray-800'
-                            }`}
-                        >
-                            <span className="text-2xl">{m.emoji}</span>
-                            <div className="flex-1 min-w-0">
-                                <div className="font-bold text-sm truncate">{language === 'es' ? m.name_es : m.name}</div>
-                                <div className="text-xs text-gray-400">{language === 'es' ? m.fact_es : m.fact}</div>
-                            </div>
-                            <div className="text-xs text-gray-500 font-mono text-right shrink-0">
-                                {formatDistance(m.distanceKm)}
-                            </div>
-                        </div>
-                    ))}
-                    {passedMilestones.length === 0 && (
-                        <div className="text-center text-gray-600 text-sm py-8">
-                            {language === 'es' ? '🚀 Presiona Viajar para comenzar tu viaje a la velocidad de la luz' : '🚀 Press Launch to begin your light-speed journey'}
-                        </div>
-                    )}
-                </div>
             </div>
 
-            <style jsx>{`
-                @keyframes streakStar {
-                    from { transform: translateX(0); opacity: 0.8; }
-                    to { transform: translateX(-200px); opacity: 0; }
-                }
-                @keyframes twinkle {
-                    0%, 100% { opacity: 0.3; }
-                    50% { opacity: 0.8; }
+            <style jsx global>{`
+                .mask-linear-fade {
+                    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
                 }
             `}</style>
         </div>

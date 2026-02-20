@@ -4,8 +4,10 @@ import "./globals.css";
 import { LanguageProvider } from "@/lib/language";
 import { GameProvider } from "@/lib/game-context";
 import { UserProvider } from "@/lib/user-context";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import Navbar from "@/components/Navbar";
-import GlobalMusicPlayer from "@/components/GlobalMusicPlayer";
+import NotificationSystem from "@/components/NotificationSystem";
+import BottomBar from "@/components/BottomBar";
 import { ThemeProvider } from "@/lib/theme-context";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -43,13 +45,16 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <GameProvider>
-              <UserProvider>
-                <div className="min-h-screen pb-16 bg-white dark:bg-gray-950 transition-colors"> {/* Add padding for player */}
-                  <Navbar />
-                  {children}
-                </div>
-                <GlobalMusicPlayer />
-              </UserProvider>
+              <SessionProviderWrapper>
+                <UserProvider>
+                  <div className="min-h-screen pb-16 bg-white dark:bg-gray-950 transition-colors"> {/* Add padding for player */}
+                    <Navbar />
+                    {children}
+                  </div>
+                  <NotificationSystem />
+                  <BottomBar />
+                </UserProvider>
+              </SessionProviderWrapper>
             </GameProvider>
           </LanguageProvider>
         </ThemeProvider>

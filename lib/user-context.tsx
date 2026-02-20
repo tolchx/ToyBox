@@ -1,10 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 
 interface User {
     username: string;
     role: 'user' | 'admin';
+    image?: string;
+    id?: string;
 }
 
 interface UserContextType {
@@ -14,34 +17,71 @@ interface UserContextType {
     isPremium: boolean;
     setIsPremium: (isPremium: boolean) => void;
     isAdmin: boolean;
+    isLoading: boolean;
+    preferences: { bgImage: string; musicUrl: string };
+    updatePreferences: (newPrefs: { bgImage?: string; musicUrl?: string }) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [isPremium, setIsPremium] = useState(true);
+    const { data: session, status } = useSession();
+    const [isPremium, setIsPremium] = useState(false); // Default to false for free tier testing
+    const [preferences, setPreferences] = useState({ bgImage: '', musicUrl: '' });
 
-    const login = (username: string) => {
-        // Demo logic: "admin" user gets admin role
-        const role = username === 'admin' ? 'admin' : 'user';
-        setUser({ username, role });
-        if (role === 'admin') setIsPremium(true); // Admins are premium by default
+    useEffect(() => {
+        const stored = localStorage.getItem('toybox_preferences');
+        if (stored) {
+            try {
+                setPreferences(JSON.parse(stored));
+            } catch (e) {
+                console.error("Failed to parse preferences", e);
+            }
+        }
+    }, []);
+
+    const updatePreferences = (newPrefs: Partial<typeof preferences>) => {
+        const updated = { ...preferences, ...newPrefs };
+        setPreferences(updated);
+        localStorage.setItem('toybox_preferences', JSON.stringify(updated));
     };
 
-    const logout = () => {
-        setUser(null);
-        setIsPremium(false);
+    // Derived user state from session
+    const user: User | null = session?.user ? {
+        username: session.user.name || session.user.email || 'User',
+        // @ts-ignore
+        role: session.user.role || 'user',
+        image: session.user.image || undefined,
+        // @ts-ignore
+        id: session.user.id
+    } : null;
+
+    useEffect(() => {
+        if (user?.role === 'admin') {
+            setIsPremium(true);
+        }
+    }, [user?.role]);
+
+    const login = (username: string) => {
+        // Redundant with NextAuth, but kept for compatibility if called manually
+        signIn();
+    };
+
+    const handleLogout = () => {
+        signOut();
     };
 
     return (
         <UserContext.Provider value={{
             user,
             login,
-            logout,
+            logout: handleLogout,
             isPremium,
             setIsPremium,
-            isAdmin: user?.role === 'admin'
+            isAdmin: user?.role === 'admin',
+            isLoading: status === 'loading',
+            preferences,
+            updatePreferences
         }}>
             {children}
         </UserContext.Provider>

@@ -412,7 +412,7 @@ export default function GlobalMusicPlayer() {
     const currentTrack = currentTrackIndex >= 0 ? playlist[currentTrackIndex] : null;
 
     return (
-        <div className={`fixed bottom-0 left-0 right-0 bg-black/90 text-white backdrop-blur-md border-t border-gray-800 transition-all duration-300 z-50 ${isExpanded ? 'h-64' : 'h-16'}`}>
+        <div className={`bg-black/90 text-white backdrop-blur-md border-t border-gray-800 transition-all duration-300 ${isExpanded ? 'h-64' : 'h-16'}`}>
             <div className="container mx-auto h-full flex flex-col">
 
                 {/* Control Bar */}
@@ -445,9 +445,8 @@ export default function GlobalMusicPlayer() {
                         {/* Picture-in-Picture */}
                         <button
                             onClick={togglePiP}
-                            className={`p-2 hover:bg-gray-700 rounded text-sm font-bold transition-colors ${
-                                isPiP ? 'text-yellow-400 bg-gray-700' : 'text-gray-400'
-                            }`}
+                            className={`p-2 hover:bg-gray-700 rounded text-sm font-bold transition-colors ${isPiP ? 'text-yellow-400 bg-gray-700' : 'text-gray-400'
+                                }`}
                             title={isPiP ? t('pip_exit') : t('pip')}
                         >
                             {isPiP ? '🖼️ PiP ON' : '🖼️ PiP'}

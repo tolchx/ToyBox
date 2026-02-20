@@ -251,6 +251,26 @@ export const games: Game[] = [
     },
   },
 
+  // === CATEGORY G: EVIL PLATFORMERS ===
+  {
+    id: "level-devil",
+    title: "Devil Level",
+    title_es: "Devil Level",
+    description: "A platformer with a troll twist. Expect the unexpected.",
+    description_es: "Un juego de plataformas con un toque troll. Espera lo inesperado.",
+    path: "/play/level-devil",
+    category: 'skill',
+    difficulty: 'hard',
+    tags: ['platformer', 'troll', 'rage'],
+    isNew: true,
+    theme: {
+      gradient: ['#7f1d1d', '#991b1b'],
+      accent: '#fca5a5',
+      icon: '😈',
+      pattern: 'fire',
+    },
+  },
+
   // === CATEGORY E: SKILL & PAIN GAMES ===
   {
     id: "perfect-alignment",

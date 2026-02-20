@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLanguage } from '@/lib/language';
 
 interface City {
@@ -86,7 +86,8 @@ const cities: City[] = [
 
 export default function CityGuesserAudioGame() {
     const { language } = useLanguage();
-    const [currentCityIdx, setCurrentCityIdx] = useState(() => Math.floor(Math.random() * cities.length));
+    const [mounted, setMounted] = useState(false);
+    const [currentCityIdx, setCurrentCityIdx] = useState(0);
     const [guess, setGuess] = useState<string | null>(null);
     const [score, setScore] = useState(0);
     const [round, setRound] = useState(1);
@@ -94,7 +95,17 @@ export default function CityGuesserAudioGame() {
     const [showResult, setShowResult] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
 
+    useEffect(() => {
+        setMounted(true);
+        setCurrentCityIdx(Math.floor(Math.random() * cities.length));
+    }, []);
+
     const city = cities[currentCityIdx];
+
+    if (!mounted) {
+        return <div className="h-full bg-gray-950 text-white flex items-center justify-center">Loading...</div>;
+    }
+
     const sounds = language === 'es' ? city.sounds_es : city.sounds;
     const hints = language === 'es' ? city.hints_es : city.hints;
 
@@ -115,7 +126,48 @@ export default function CityGuesserAudioGame() {
         }
     };
 
+    // Stop speech when component unmounts
+    useEffect(() => {
+        return () => {
+            window.speechSynthesis.cancel();
+        };
+    }, []);
+
+    const speakSounds = () => {
+        if (!window.speechSynthesis) return;
+
+        // Cancel any current speech
+        window.speechSynthesis.cancel();
+
+        const textToSpeak = sounds.join('. ');
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+        // Set language
+        utterance.lang = language === 'es' ? 'es-ES' : 'en-US';
+
+        // Optional: specific voice selection could go here, but default usually works well
+
+        // When speech ends, stop the visual playing state
+        utterance.onend = () => {
+            setIsPlaying(false);
+        };
+
+        window.speechSynthesis.speak(utterance);
+    };
+
+    const togglePlay = () => {
+        const newIsPlaying = !isPlaying;
+        setIsPlaying(newIsPlaying);
+
+        if (newIsPlaying) {
+            speakSounds();
+        } else {
+            window.speechSynthesis.cancel();
+        }
+    };
+
     const nextRound = () => {
+        window.speechSynthesis.cancel();
         let nextIdx = Math.floor(Math.random() * cities.length);
         while (nextIdx === currentCityIdx) nextIdx = Math.floor(Math.random() * cities.length);
         setCurrentCityIdx(nextIdx);
@@ -126,16 +178,15 @@ export default function CityGuesserAudioGame() {
         setIsPlaying(false); // Reset playing state
     };
 
+    // Watch for language changes to update voice if playing (optional, mostly for consistency)
+    useEffect(() => {
+        if (isPlaying) {
+            speakSounds();
+        }
+    }, [language]);
+
     const revealHint = () => {
         if (hintsRevealed < hints.length) setHintsRevealed(prev => prev + 1);
-    };
-
-    const togglePlay = () => {
-        setIsPlaying(!isPlaying);
-        // Simulate audio playing for 10 seconds, then auto-stop
-        if (!isPlaying) {
-            setTimeout(() => setIsPlaying(false), 10000);
-        }
     };
 
     const isCorrect = guess === city.name;
@@ -170,11 +221,10 @@ export default function CityGuesserAudioGame() {
                         </div>
                         <button
                             onClick={togglePlay}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                                isPlaying 
-                                    ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-                                    : 'bg-teal-500 hover:bg-teal-600'
-                            }`}
+                            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isPlaying
+                                ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                                : 'bg-teal-500 hover:bg-teal-600'
+                                }`}
                         >
                             {isPlaying ? (
                                 <span className="text-white text-xl">⏸</span>
@@ -186,23 +236,26 @@ export default function CityGuesserAudioGame() {
 
                     {/* Waveform visualization */}
                     <div className="flex items-end gap-0.5 h-12 mb-4 justify-center">
-                        {Array.from({ length: 40 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className={`w-1.5 rounded-full transition-all duration-300 ${
-                                    isPlaying 
-                                        ? 'bg-teal-500 animate-pulse' 
+                        {Array.from({ length: 40 }).map((_, i) => {
+                            // Deterministic pseudo-random based on index
+                            const rand = ((i * 1234.5678) % 1);
+                            return (
+                                <div
+                                    key={i}
+                                    className={`w-1.5 rounded-full transition-all duration-300 ${isPlaying
+                                        ? 'bg-teal-500 animate-pulse'
                                         : 'bg-teal-500/30'
-                                }`}
-                                style={{
-                                    height: isPlaying 
-                                        ? `${20 + Math.sin(Date.now() * 0.01 + i * 0.5) * 30 + Math.random() * 20}%`
-                                        : `${15 + Math.sin(i * 0.5) * 20 + Math.random() * 15}%`,
-                                    animationDelay: isPlaying ? `${i * 0.05}s` : '0s',
-                                    animationDuration: isPlaying ? `${0.3 + Math.random() * 0.4}s` : `${0.5 + Math.random() * 1}s`,
-                                }}
-                            />
-                        ))}
+                                        }`}
+                                    style={{
+                                        height: isPlaying
+                                            ? `${20 + Math.sin(i * 0.5) * 30 + rand * 20}%`
+                                            : `${15 + Math.sin(i * 0.5) * 20 + rand * 15}%`,
+                                        animationDelay: isPlaying ? `${i * 0.05}s` : '0s',
+                                        animationDuration: isPlaying ? `${0.3 + rand * 0.4}s` : `${0.5 + rand * 1}s`,
+                                    }}
+                                />
+                            );
+                        })}
                     </div>
 
                     {/* Sound list */}

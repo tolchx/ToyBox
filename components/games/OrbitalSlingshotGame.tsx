@@ -57,6 +57,132 @@ const levels: { bodies: Body[]; target: { x: number; y: number; radius: number }
         target: { x: 250, y: 50, radius: 18 },
         startX: 250, startY: 470,
     },
+    {
+        bodies: [
+            { x: 250, y: 250, mass: 1000, radius: 30, color: '#fbbf24', label: 'Supergiant', label_es: 'Supergigante' },
+            { x: 100, y: 150, mass: 180, radius: 11, color: '#ef4444', label: 'Red Dwarf', label_es: 'Enana Roja' },
+            { x: 400, y: 150, mass: 180, radius: 11, color: '#3b82f6', label: 'Blue Dwarf', label_es: 'Enana Azul' },
+            { x: 150, y: 400, mass: 220, radius: 13, color: '#8b5cf6', label: 'Gas Giant', label_es: 'Gigante Gaseoso' },
+        ],
+        target: { x: 450, y: 450, radius: 15 },
+        startX: 50, startY: 50,
+    },
+    {
+        bodies: [
+            { x: 200, y: 200, mass: 450, radius: 18, color: '#fbbf24', label: 'Star Alpha', label_es: 'Estrella Alfa' },
+            { x: 300, y: 200, mass: 450, radius: 18, color: '#f97316', label: 'Star Beta', label_es: 'Estrella Beta' },
+            { x: 250, y: 300, mass: 450, radius: 18, color: '#ef4444', label: 'Star Gamma', label_es: 'Estrella Gamma' },
+        ],
+        target: { x: 420, y: 80, radius: 16 },
+        startX: 80, startY: 420,
+    },
+    {
+        bodies: [
+            { x: 250, y: 150, mass: 700, radius: 23, color: '#fbbf24', label: 'Primary Star', label_es: 'Estrella Primaria' },
+            { x: 150, y: 350, mass: 300, radius: 15, color: '#3b82f6', label: 'Planet 1', label_es: 'Planeta 1' },
+            { x: 350, y: 350, mass: 300, radius: 15, color: '#8b5cf6', label: 'Planet 2', label_es: 'Planeta 2' },
+            { x: 250, y: 400, mass: 150, radius: 10, color: '#ef4444', label: 'Moon', label_es: 'Luna' },
+        ],
+        target: { x: 480, y: 250, radius: 14 },
+        startX: 20, startY: 250,
+    },
+    {
+        bodies: [
+            { x: 180, y: 180, mass: 400, radius: 17, color: '#fbbf24', label: 'Star 1', label_es: 'Estrella 1' },
+            { x: 320, y: 180, mass: 400, radius: 17, color: '#f97316', label: 'Star 2', label_es: 'Estrella 2' },
+            { x: 180, y: 320, mass: 400, radius: 17, color: '#3b82f6', label: 'Star 3', label_es: 'Estrella 3' },
+            { x: 320, y: 320, mass: 400, radius: 17, color: '#8b5cf6', label: 'Star 4', label_es: 'Estrella 4' },
+        ],
+        target: { x: 250, y: 250, radius: 12 },
+        startX: 250, startY: 50,
+    },
+    {
+        bodies: [
+            { x: 250, y: 250, mass: 1200, radius: 32, color: '#fbbf24', label: 'Hypergiant', label_es: 'Hiper gigante' },
+            { x: 80, y: 80, mass: 120, radius: 9, color: '#ef4444', label: 'Dwarf A', label_es: 'Enana A' },
+            { x: 420, y: 80, mass: 120, radius: 9, color: '#3b82f6', label: 'Dwarf B', label_es: 'Enana B' },
+            { x: 80, y: 420, mass: 120, radius: 9, color: '#8b5cf6', label: 'Dwarf C', label_es: 'Enana C' },
+            { x: 420, y: 420, mass: 120, radius: 9, color: '#10b981', label: 'Dwarf D', label_es: 'Enana D' },
+        ],
+        target: { x: 250, y: 100, radius: 12 },
+        startX: 250, startY: 400,
+    },
+    {
+        bodies: [
+            { x: 150, y: 250, mass: 350, radius: 16, color: '#fbbf24', label: 'Star A', label_es: 'Estrella A' },
+            { x: 250, y: 150, mass: 350, radius: 16, color: '#f97316', label: 'Star B', label_es: 'Estrella B' },
+            { x: 350, y: 250, mass: 350, radius: 16, color: '#3b82f6', label: 'Star C', label_es: 'Estrella C' },
+            { x: 250, y: 350, mass: 350, radius: 16, color: '#8b5cf6', label: 'Star D', label_es: 'Estrella D' },
+            { x: 250, y: 250, mass: 200, radius: 12, color: '#ef4444', label: 'Core', label_es: 'Núcleo' },
+        ],
+        target: { x: 50, y: 50, radius: 12 },
+        startX: 450, startY: 450,
+    },
+    {
+        bodies: [
+            { x: 200, y: 200, mass: 500, radius: 19, color: '#fbbf24', label: 'Centauri A', label_es: 'Centauri A' },
+            { x: 300, y: 200, mass: 500, radius: 19, color: '#f97316', label: 'Centauri B', label_es: 'Centauri B' },
+            { x: 150, y: 300, mass: 250, radius: 14, color: '#3b82f6', label: 'Planet X', label_es: 'Planeta X' },
+            { x: 350, y: 300, mass: 250, radius: 14, color: '#8b5cf6', label: 'Planet Y', label_es: 'Planeta Y' },
+            { x: 250, y: 380, mass: 100, radius: 8, color: '#ef4444', label: 'Asteroid', label_es: 'Asteroide' },
+        ],
+        target: { x: 250, y: 50, radius: 10 },
+        startX: 250, startY: 450,
+    },
+    {
+        bodies: [
+            { x: 250, y: 250, mass: 1500, radius: 35, color: '#fbbf24', label: 'Quasar', label_es: 'Cuásar' },
+            { x: 100, y: 100, mass: 200, radius: 12, color: '#ef4444', label: 'Pulsar A', label_es: 'Púlsar A' },
+            { x: 400, y: 100, mass: 200, radius: 12, color: '#3b82f6', label: 'Pulsar B', label_es: 'Púlsar B' },
+            { x: 100, y: 400, mass: 200, radius: 12, color: '#8b5cf6', label: 'Pulsar C', label_es: 'Púlsar C' },
+            { x: 400, y: 400, mass: 200, radius: 12, color: '#10b981', label: 'Pulsar D', label_es: 'Púlsar D' },
+            { x: 250, y: 100, mass: 80, radius: 7, color: '#f97316', label: 'Comet', label_es: 'Cometa' },
+        ],
+        target: { x: 250, y: 480, radius: 10 },
+        startX: 250, startY: 20,
+    },
+    {
+        bodies: [
+            { x: 125, y: 125, mass: 300, radius: 15, color: '#fbbf24', label: 'Star 1', label_es: 'Estrella 1' },
+            { x: 375, y: 125, mass: 300, radius: 15, color: '#f97316', label: 'Star 2', label_es: 'Estrella 2' },
+            { x: 125, y: 375, mass: 300, radius: 15, color: '#3b82f6', label: 'Star 3', label_es: 'Estrella 3' },
+            { x: 375, y: 375, mass: 300, radius: 15, color: '#8b5cf6', label: 'Star 4', label_es: 'Estrella 4' },
+            { x: 250, y: 250, mass: 400, radius: 17, color: '#ef4444', label: 'Central Star', label_es: 'Estrella Central' },
+            { x: 200, y: 250, mass: 100, radius: 8, color: '#10b981', label: 'Orbiter 1', label_es: 'Orbitador 1' },
+            { x: 300, y: 250, mass: 100, radius: 8, color: '#f59e0b', label: 'Orbiter 2', label_es: 'Orbitador 2' },
+        ],
+        target: { x: 470, y: 250, radius: 8 },
+        startX: 30, startY: 250,
+    },
+    {
+        bodies: [
+            { x: 250, y: 250, mass: 2000, radius: 40, color: '#fbbf24', label: 'Black Hole', label_es: 'Agujero Negro' },
+            { x: 150, y: 150, mass: 150, radius: 10, color: '#ef4444', label: 'Dwarf 1', label_es: 'Enana 1' },
+            { x: 350, y: 150, mass: 150, radius: 10, color: '#3b82f6', label: 'Dwarf 2', label_es: 'Enana 2' },
+            { x: 150, y: 350, mass: 150, radius: 10, color: '#8b5cf6', label: 'Dwarf 3', label_es: 'Enana 3' },
+            { x: 350, y: 350, mass: 150, radius: 10, color: '#10b981', label: 'Dwarf 4', label_es: 'Enana 4' },
+            { x: 250, y: 100, mass: 100, radius: 8, color: '#f97316', label: 'Satellite A', label_es: 'Satélite A' },
+            { x: 100, y: 250, mass: 100, radius: 8, color: '#f59e0b', label: 'Satellite B', label_es: 'Satélite B' },
+            { x: 400, y: 250, mass: 100, radius: 8, color: '#ec4899', label: 'Satellite C', label_es: 'Satélite C' },
+        ],
+        target: { x: 250, y: 20, radius: 8 },
+        startX: 250, startY: 480,
+    },
+    {
+        bodies: [
+            { x: 250, y: 250, mass: 2500, radius: 45, color: '#1f2937', label: 'Singularity', label_es: 'Singularidad' },
+            { x: 100, y: 100, mass: 180, radius: 11, color: '#ef4444', label: 'Quark Star A', label_es: 'Estrella de Quarks A' },
+            { x: 400, y: 100, mass: 180, radius: 11, color: '#3b82f6', label: 'Quark Star B', label_es: 'Estrella de Quarks B' },
+            { x: 100, y: 400, mass: 180, radius: 11, color: '#8b5cf6', label: 'Quark Star C', label_es: 'Estrella de Quarks C' },
+            { x: 400, y: 400, mass: 180, radius: 11, color: '#10b981', label: 'Quark Star D', label_es: 'Estrella de Quarks D' },
+            { x: 200, y: 200, mass: 120, radius: 9, color: '#f97316', label: 'Neutron Star', label_es: 'Estrella de Neutrones' },
+            { x: 300, y: 200, mass: 120, radius: 9, color: '#f59e0b', label: 'Magnetar', label_es: 'Magnetar' },
+            { x: 200, y: 300, mass: 120, radius: 9, color: '#ec4899', label: 'White Dwarf', label_es: 'Enana Blanca' },
+            { x: 300, y: 300, mass: 120, radius: 9, color: '#06b6d4', label: 'Brown Dwarf', label_es: 'Enana Marrón' },
+        ],
+        target: { x: 15, y: 15, radius: 6 },
+        startX: 485, startY: 485,
+    },
 ];
 
 export default function OrbitalSlingshotGame() {
