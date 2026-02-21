@@ -37,19 +37,19 @@ export default function WarpStars({ speed }: { speed: number }) {
             const positions = ref.current.geometry.attributes.position.array as Float32Array;
 
             for (let i = 0; i < count; i++) {
-                // Move stars towards camera (z-axis) based on speed
                 const i3 = i * 3;
-
-                // Base movement + speed boost
                 let z = positions[i3 + 2];
-                z += delta * (2 + speed * 10);
 
-                // Reset if too close
+                // Move stars towards camera
+                // Distribute speeds slightly for depth
+                const starSpeed = 2 + speed * 25;
+                z += delta * starSpeed;
+
+                // Reset if too close or passed the camera
                 if (z > 20) {
-                    z = -80;
-                    // Respawn x/y randomly to avoid tunnels
-                    positions[i3] = (Math.random() - 0.5) * 100;
-                    positions[i3 + 1] = (Math.random() - 0.5) * 100;
+                    z = -150 - Math.random() * 50; // Respawn far back with random depth
+                    positions[i3] = (Math.random() - 0.5) * 200; // Wider X
+                    positions[i3 + 1] = (Math.random() - 0.5) * 200; // Wider Y
                 }
 
                 positions[i3 + 2] = z;
@@ -59,28 +59,34 @@ export default function WarpStars({ speed }: { speed: number }) {
     });
 
     return (
-        <points ref={ref}>
-            <bufferGeometry>
-                <bufferAttribute
-                    attach="attributes-position"
-                    count={positions.length / 3}
-                    array={positions}
-                    itemSize={3}
+        <group>
+            <points ref={ref}>
+                <bufferGeometry>
+                    <bufferAttribute
+                        attach="attributes-position"
+                        args={[positions, 3]}
+                    />
+                    <bufferAttribute
+                        attach="attributes-color"
+                        args={[colors, 3]}
+                    />
+                </bufferGeometry>
+                <PointMaterial
+                    transparent
+                    vertexColors
+                    size={speed > 5 ? 0.05 : 0.15}
+                    sizeAttenuation={true}
+                    depthWrite={false}
+                    blending={THREE.AdditiveBlending}
                 />
-                <bufferAttribute
-                    attach="attributes-color"
-                    count={colors.length / 3}
-                    array={colors}
-                    itemSize={3}
-                />
-            </bufferGeometry>
-            <PointMaterial
-                transparent
-                vertexColors
-                size={0.15}
-                sizeAttenuation={true}
-                depthWrite={false}
-            />
-        </points>
+            </points>
+
+            {/* Visual speed streaks when going fast */}
+            {speed > 10 && (
+                <group rotation={[0, 0, 0]}>
+                    {/* We could add a more complex line system here, but Bloom will handle the points stretching visually if we use enough of them */}
+                </group>
+            )}
+        </group>
     );
 }

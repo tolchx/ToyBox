@@ -57,17 +57,38 @@ function formatLightTime(km: number): string {
     return `${(seconds / 31536000).toFixed(4)} light-years`;
 }
 
-export default function SpeedOfLightGame() {
+export default function SpeedOfLightGame({ onScoreUpdate }: { onScoreUpdate?: (data: any) => void }) {
     const { language } = useLanguage();
     const [traveling, setTraveling] = useState(false);
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [timeScale, setTimeScale] = useState(1);
     const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
+    const [muted, setMuted] = useState(false);
     const animRef = useRef<number>(0);
     const lastTimeRef = useRef<number>(0);
     const elapsedRef = useRef(0);
 
     const distanceTraveled = elapsedSeconds * SPEED_OF_LIGHT_KM_S;
+
+    // Report score to versus overlay
+    useEffect(() => {
+        if (!onScoreUpdate) return;
+
+        // Report initial state immediately
+        const reportScore = () => {
+            const passed = milestones.filter(m => distanceTraveled >= m.distanceKm);
+            onScoreUpdate({
+                distance: formatDistance(distanceTraveled),
+                time: formatTime(elapsedSeconds),
+                milestones: passed.length,
+                points: passed.length * 100,
+            });
+        };
+
+        reportScore(); // immediate first report
+        const interval = setInterval(reportScore, 2000);
+        return () => clearInterval(interval);
+    }, [onScoreUpdate, traveling, distanceTraveled, elapsedSeconds]);
 
     const passedMilestones = milestones.filter(m => distanceTraveled >= m.distanceKm);
     const nextMilestone = milestones.find(m => distanceTraveled < m.distanceKm);
@@ -118,6 +139,7 @@ export default function SpeedOfLightGame() {
                     timeScale={timeScale}
                     distanceTraveled={distanceTraveled}
                     milestones={milestones}
+                    muted={muted}
                 />
             </div>
 
@@ -128,15 +150,29 @@ export default function SpeedOfLightGame() {
                 <div className="absolute top-4 left-4 w-80 max-h-[calc(100vh-2rem)] flex flex-col gap-4 pointer-events-auto overflow-y-auto scrollbar-none">
 
                     {/* Title */}
-                    <div className="bg-black/50 p-4 rounded-xl backdrop-blur-sm border border-white/10">
-                        <h1 className="text-xl font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 leading-tight">
-                            {language === 'es' ? 'Viajero a la Velocidad de la Luz' : 'Speed of Light Voyager'}
-                        </h1>
-                        <p className="text-gray-400 text-xs font-medium">
-                            {language === 'es'
-                                ? 'Viaja a 299.792 km/s desde la Tierra'
-                                : 'Travel at 299,792 km/s from Earth'}
-                        </p>
+                    <div className="flex justify-between items-start">
+                        <div className="bg-black/80 backdrop-blur-xl p-4 rounded-2xl border border-white/10 shadow-2xl">
+                            <h1 className="text-2xl font-black bg-gradient-to-br from-white via-cyan-200 to-blue-400 bg-clip-text text-transparent">
+                                {language === 'es' ? 'Viajero a la Velocidad de la Luz' : 'Speed of Light Traveler'}
+                            </h1>
+                            <p className="text-[10px] text-cyan-400/80 uppercase tracking-[0.2em] font-medium mt-1">
+                                {language === 'es' ? 'Viaja a 299.792 km/s desde la Tierra' : 'Travel at 299,792 km/s from Earth'}
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={() => setMuted(!muted)}
+                            className={`p-3 rounded-xl backdrop-blur-md border transition-all ${muted
+                                ? 'bg-red-500/20 border-red-500/50 text-red-400'
+                                : 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400'
+                                }`}
+                        >
+                            {muted ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                            )}
+                        </button>
                     </div>
 
                     {/* Stats Compact */}

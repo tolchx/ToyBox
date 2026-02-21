@@ -44,6 +44,10 @@ model User {
 
   notifications  Notification[]
   hiddenGames    UserHiddenGame[]
+
+  // Versus
+  challengerMatches VersusMatch[] @relation("ChallengerMatches")
+  challengedMatches VersusMatch[] @relation("ChallengedMatches")
 }
 
 model Account {
@@ -167,4 +171,20 @@ model GlobalDeletedGame {
   gameId    String   @unique
   deletedBy String   // UserId of admin
   createdAt DateTime @default(now())
+}
+
+model VersusMatch {
+  id              String   @id @default(cuid())
+  gameId          String   // e.g. "speed-of-light"
+  challengerId    String
+  challengedId    String
+  status          String   @default("pending") // pending, active, completed
+  challengerScore String?  // JSON with game-specific data
+  challengedScore String?  // JSON with game-specific data
+  winnerId        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  challenger      User     @relation("ChallengerMatches", fields: [challengerId], references: [id], onDelete: Cascade)
+  challenged      User     @relation("ChallengedMatches", fields: [challengedId], references: [id], onDelete: Cascade)
 }

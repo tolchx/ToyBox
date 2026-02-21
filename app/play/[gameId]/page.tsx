@@ -5,7 +5,10 @@ import { notFound } from 'next/navigation';
 import { useLanguage } from '@/lib/language';
 import Link from 'next/link';
 import { useEffect, useRef, useState, useCallback, use } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useUser } from '@/lib/user-context';
+import { updateVersusScore } from '@/app/actions';
+import VersusOverlay from '@/components/VersusOverlay';
 import SpendMoneyGame from '@/components/games/SpendMoneyGame';
 import DeadPixelGame from '@/components/games/DeadPixelGame';
 import LoadingSimulatorGame from '@/components/games/LoadingSimulatorGame';
@@ -30,7 +33,7 @@ interface PageProps {
     }>;
 }
 
-const nativeGames: Record<string, React.ComponentType> = {
+const nativeGames: Record<string, React.ComponentType<{ onScoreUpdate?: (data: any) => void }>> = {
     'spend-money': SpendMoneyGame,
     'dead-pixel': DeadPixelGame,
     'loading-simulator': LoadingSimulatorGame,
@@ -64,6 +67,8 @@ export default function GamePage({ params }: PageProps) {
 
     const [showTutorial, setShowTutorial] = useState(false);
     const hasTutorial = !!gameTutorials[gameId];
+    const searchParams = useSearchParams();
+    const vsMatchId = searchParams.get('vs');
 
     useEffect(() => {
         if (hasTutorial) {
@@ -125,7 +130,13 @@ export default function GamePage({ params }: PageProps) {
             <div className="flex-1 w-full relative z-0 flex items-stretch overflow-hidden">
                 {isNative ? (
                     <div className="w-full h-full bg-white dark:bg-gray-900 overflow-auto">
-                        <NativeGame />
+                        <NativeGame
+                            {...(vsMatchId ? {
+                                onScoreUpdate: async (data: any) => {
+                                    await updateVersusScore(vsMatchId, JSON.stringify(data));
+                                }
+                            } : {})}
+                        />
                     </div>
                 ) : isIframe ? (
                     <div className="w-full h-full bg-white dark:bg-gray-900 overflow-hidden">
@@ -161,6 +172,11 @@ export default function GamePage({ params }: PageProps) {
 
             {showTutorial && hasTutorial && (
                 <GameTutorial gameId={gameId} onClose={handleCloseTutorial} />
+            )}
+
+            {/* Versus Overlay */}
+            {vsMatchId && (
+                <VersusOverlay matchId={vsMatchId} />
             )}
 
             {/* Global Music Player (Hidden but active) */}

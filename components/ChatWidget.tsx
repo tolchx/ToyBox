@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import { sendMessage, getMessages, getUsers } from '@/app/actions';
+import { sendMessage, getMessages, getUsers, createVersusMatch, acceptVersusMatch } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 
 interface Message {
@@ -102,13 +102,24 @@ export default function ChatWidget() {
 
     const sendChallenge = async (gameId: string) => {
         setShowChallengeModal(false);
-        const content = `Challenged you to a game of ${gameId}!`;
-        const metadata = JSON.stringify({ gameId, status: 'pending' });
 
-        await sendMessage(content, activeGroup === 'global' ? 'global' : undefined, activeGroup !== 'global' ? activeGroup : undefined, 'challenge', metadata);
+        // Create a real versus match in the DB
+        const targetUserId = activeGroup !== 'global' ? activeGroup : undefined;
+        if (!targetUserId) return;
+
+        const result = await createVersusMatch(gameId, targetUserId);
+        if ('error' in result) return;
+
+        const content = `¡Te reto a ${gameId}!`;
+        const metadata = JSON.stringify({ gameId, matchId: result.matchId, status: 'pending' });
+
+        await sendMessage(content, undefined, targetUserId, 'challenge', metadata);
         // Refresh messages immediately
-        const msgs = await getMessages(activeGroup === 'global' ? 'global' : undefined, activeGroup !== 'global' ? activeGroup : undefined);
+        const msgs = await getMessages(undefined, targetUserId);
         setMessages(msgs as any);
+
+        // Navigate to game immediately as challenger
+        router.push(`/play/${gameId}?vs=${result.matchId}`);
     };
 
     const isOnline = (date: Date | string | null) => {
@@ -217,23 +228,33 @@ export default function ChatWidget() {
                                         onClick={() => router.push(`/profile/${msg.senderId}`)}
                                     />
                                     <div className={`p-3 rounded-2xl ${isChallenge
-                                            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-none'
-                                            : isMe
-                                                ? 'bg-blue-600 text-white rounded-br-none'
-                                                : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-bl-none'
+                                        ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-none'
+                                        : isMe
+                                            ? 'bg-blue-600 text-white rounded-br-none'
+                                            : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-bl-none'
                                         }`}>
                                         {!isMe && <div className="text-xs text-opacity-70 mb-1">{msg.sender.alias || msg.sender.name}</div>}
 
                                         {isChallenge ? (
                                             <div className="flex flex-col gap-2">
-                                                <div className="font-bold">⚔️ Challenge Invitation!</div>
-                                                <div>Let's play <span className="font-bold">{challengeData?.gameId}</span>!</div>
-                                                <button
-                                                    onClick={() => router.push(`/games/${challengeData?.gameId}?vs=${msg.senderId}`)}
-                                                    className="bg-white text-orange-600 text-sm font-bold px-3 py-1 rounded shadow hover:bg-gray-100 mt-1"
-                                                >
-                                                    Accept Challenge
-                                                </button>
+                                                <div className="font-bold">⚔️ ¡Invitación a Versus!</div>
+                                                <div>Juguemos <span className="font-bold">{challengeData?.gameId}</span>!</div>
+                                                {!isMe && challengeData?.matchId && (
+                                                    <button
+                                                        onClick={async () => {
+                                                            const result = await acceptVersusMatch(challengeData.matchId);
+                                                            if (result && 'success' in result) {
+                                                                router.push(`/play/${challengeData.gameId}?vs=${challengeData.matchId}`);
+                                                            }
+                                                        }}
+                                                        className="bg-white text-orange-600 text-sm font-bold px-3 py-1 rounded shadow hover:bg-gray-100 mt-1"
+                                                    >
+                                                        Aceptar Desafío
+                                                    </button>
+                                                )}
+                                                {isMe && challengeData?.matchId && (
+                                                    <div className="text-xs opacity-70">⏳ Esperando aceptación...</div>
+                                                )}
                                             </div>
                                         ) : (
                                             <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>

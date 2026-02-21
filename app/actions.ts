@@ -373,3 +373,101 @@ export async function markNotificationRead(id: string) {
     })
     return 'success'
 }
+
+// ========== VERSUS MODE ==========
+
+/**
+ * Creates a new versus match challenge.
+ */
+export async function createVersusMatch(gameId: string, challengedId: string) {
+    const session = await auth()
+    if (!session?.user?.id) return { error: 'Unauthorized' }
+    const userId = session.user.id
+
+    if (userId === challengedId) return { error: 'Cannot challenge yourself' }
+
+    try {
+        const match = await prisma.versusMatch.create({
+            data: {
+                gameId,
+                challengerId: userId,
+                challengedId,
+                status: 'pending',
+            }
+        })
+        return { matchId: match.id }
+    } catch (error) {
+        return { error: 'Failed to create match' }
+    }
+}
+
+/**
+ * Accepts a pending versus match, setting its status to 'active'.
+ */
+export async function acceptVersusMatch(matchId: string) {
+    const session = await auth()
+    if (!session?.user?.id) return { error: 'Unauthorized' }
+    const userId = session.user.id
+
+    try {
+        const match = await prisma.versusMatch.findUnique({ where: { id: matchId } })
+        if (!match) return { error: 'Match not found' }
+        if (match.challengedId !== userId) return { error: 'Not your match to accept' }
+        if (match.status !== 'pending') return { error: 'Match already started or completed' }
+
+        await prisma.versusMatch.update({
+            where: { id: matchId },
+            data: { status: 'active' }
+        })
+        return { success: true, gameId: match.gameId }
+    } catch (error) {
+        return { error: 'Failed to accept match' }
+    }
+}
+
+/**
+ * Updates the caller's score in a versus match.
+ * scoreData is a JSON string with game-specific stats.
+ */
+export async function updateVersusScore(matchId: string, scoreData: string) {
+    const session = await auth()
+    if (!session?.user?.id) return { error: 'Unauthorized' }
+    const userId = session.user.id
+
+    try {
+        const match = await prisma.versusMatch.findUnique({ where: { id: matchId } })
+        if (!match) return { error: 'Match not found' }
+
+        const isChallenger = match.challengerId === userId
+        const isChallenged = match.challengedId === userId
+        if (!isChallenger && !isChallenged) return { error: 'Not a participant' }
+
+        await prisma.versusMatch.update({
+            where: { id: matchId },
+            data: isChallenger
+                ? { challengerScore: scoreData }
+                : { challengedScore: scoreData }
+        })
+        return { success: true }
+    } catch (error) {
+        return { error: 'Failed to update score' }
+    }
+}
+
+/**
+ * Retrieves a versus match with both players' info.
+ */
+export async function getVersusMatch(matchId: string) {
+    try {
+        const match = await prisma.versusMatch.findUnique({
+            where: { id: matchId },
+            include: {
+                challenger: { select: { id: true, name: true, image: true, alias: true } },
+                challenged: { select: { id: true, name: true, image: true, alias: true } },
+            }
+        })
+        return match
+    } catch (error) {
+        return null
+    }
+}
